@@ -1,0 +1,46 @@
+site_name: aprofs Package
+site_description: "This is a simple example python package."
+
+repo_url: https://github.com/
+repo_name: aprofs
+
+theme:
+  icon:
+    repo: fontawesome/brands/github
+  name: "material"
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      primary: "blue"
+      accent: "grey"
+      scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      primary: "blue"
+      accent: "white"
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+  #- mkdocs-jupyter
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - "Start": index.md
+  - "Tutorials": tutorials.md
+  #- "Notebook page": Test.ipynb
+  - "Guides": guide.md
+  - "Reference": reference.md
+  - "API": api.md

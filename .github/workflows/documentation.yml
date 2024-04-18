@@ -16,6 +16,6 @@ jobs:
           python-version: "3.10"
       - run: |
          python -m pip install --upgrade poetry
-         poetry install --with dev
+         poetry install --only dev
          pip install -e .
       - run: mkdocs gh-deploy --force

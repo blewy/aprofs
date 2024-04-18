@@ -19,4 +19,5 @@ jobs:
          python -m pip install --upgrade poetry
          poetry install --only dev
          pip install -e .
-      - run: python -m mkdocs gh-deploy --force
+         pip install mkdocs mkdocs-material
+      - run: mkdocs gh-deploy --force

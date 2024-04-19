@@ -30,4 +30,4 @@ jobs:
 
       - name: Deploy docs dependencies 
         run: |
-          mkdocs gh-deploy --force
+          poetry run mkdocs gh-deploy --force

@@ -22,7 +22,11 @@ from tqdm import tqdm
 
 class Aprofs:
     """
+    Aprofs Class
+
     A class for analyzing SHAP values using approximate predictions.
+    --------------------------------------------------------------
+
 
     Attributes:
         current_data (pd.DataFrame): The current data.
@@ -85,8 +89,6 @@ class Aprofs:
         return roc_auc_score(
             self.target_column, utils.calculate_row_sum(self.shap_values, self.shap_mean, features, self.link)
         )
-
-    # runnoint the performance_gbm function for all combinations of features and keep the best results and feature combination
 
     def brute_force_selection(self, features: List[str]) -> List[str]:
         """

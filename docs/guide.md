@@ -3,12 +3,14 @@ how the code should be used.
 
 ## Get you first aprofs bject up
 
-The initial idea was to create a struture that contains all the irformation needed to use the shapley values
+The initial idea was to create a structure that contains all the information needed to use the **shapley values**
 alongside with you calibration data to get the results you need.
 
 so opne instaciats with all the proper inputs we just need to use the correct methos to get our results.
 
-Its very important to get the shapley calues calulated before using the Aprofs object. Ive added a wrapper methos calleff **calculate_shaps** where you brin you own model. This jts wrped teh pythpm code got add the shapley value tabel and the shap measn value into th APofs object.
+Its very important to get the shapley values calculated before using the Aprofs object. I've added some wrapper method called **calculate_shaps** where you bring your own model. 
+
+This piece of code just wrapped some SHAP package functionality like you see below
 
 ``` py  title="TreeExplainer"
     shap_explainer = TreeExplainer(model)
@@ -16,7 +18,7 @@ Its very important to get the shapley calues calulated before using the Aprofs o
     shap_expected_value = shap_explainer.expected_value
 ```
 
-Pelase reach to the APi to get all the deatils of how to crete but basically you need the **calibration** data, the **target column** for that data and a ML **model**. The detail was that the model will not be saved inside the Aprofs object. I didn't wanted to bloat the thing more than needed.
+Please reach to the [API](api.md) to get all the details of how to crete but basically you need the **calibration** data, the **target column** for that data and a ML **model**. The detail was that the model will not be saved inside the Aprofs object. I didn't wanted to bloat the thing more than needed.
 
 ```py
 from aprofs import code
@@ -27,7 +29,7 @@ aprofs_obj = code.Aprofs(X_calibration, y_calibration, link="logistic")
 [!WARNING]  
 **At the moment only the **logistic** or **binary** models where tested and develops, more to come in the future.**
 
-and then you can add the shapley value table and measn shale values with a precalulated like this
+and then you can add the shapley value table and measn shale values with a pre-calculated like this
 
 ``` py
 aprofs_obj.shap_values = pre_calc_shaps_df
@@ -49,15 +51,14 @@ aprofs_obj.calculate_shaps(model)
 ## Select features with aprofs object
 
 
-After having your shapley value created or added into the aprofs object we can start using the built in funcionality.
+After having your shapley value created or added into the aprofs object we can start using the built in functionality.
 
-The firs stop wil be using the feature selection functionality. At the mometno we just have the **brute force** created.
+The firs stop wil be using the feature selection functionality. At the moment we just have the **brute force** created.
 More will be added in the future.
 
-Th eidead is that this mehtod will look into all possibilities of the feature combinations ant claculate the model performance
-using the aproximates prediction possible with the shapleo+y value table.
+The idea is that this method will look into all possibilities of the feature combinations and calculate the model performance using the approximate prediction possible with the shapley values table.
 
-In tis case the perfoemce of the **feature A** and **feature B**. will be using a prediction the following:
+In this case the performce of the **feature A** and **feature B**. will be using a prediction the following:
 
     - Shapley A + Shapley Value B + Shap mean value
 
@@ -73,10 +74,10 @@ It will return a tuple with the best subset of features.
 
 ## Visualize your shapley value
 
-To valudate our model its interesting to look into the predicted vs observed values comparing their behavior
-along the feature used for modelling, bua also any other what you might seam interesting.
+To validate our model its interesting to look into the predicted vs observed values comparing their behavior
+along the feature used for modelling, bua also any other what you might look interesting.
 
-An interesting add on can be also to add the marginal effect of the shappley values for that features,
+An interesting add on can be also to add the marginal effect of the shappley values for that feature,
 this was you can see the overall behavior of the models, but also the marginal effect of the feature on your model
 building even more intuition and understanding into your package.
 

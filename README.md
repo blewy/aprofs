@@ -12,7 +12,7 @@ Please look at the package website for more resources: [Aprofs web](https://blew
 
 - **Feature Selection**: aprofs uses Shapley values, a concept from cooperative game theory, to identify the most important features in your dataset.
 
- **Feature Visualization**: aprofs uses Shapley values to check the marginal behavior of the feature used by the model.
+- **Feature Visualization**: aprofs uses Shapley values to check the marginal behavior of the feature useds by the model.
 
 
 

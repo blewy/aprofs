@@ -4,14 +4,14 @@ This site contains the project documentation for the
 `aprofs` project.
 
 This is a side project that allows to implement some of the ideas that came from the
-investigation about how can we use shapley values to get aproximate predictions.
+investigation about how can we use shapley values to get approximate predictions.
 
 In here we take account og the additive nature of shapley values, and disregard a bit the potential
 problems with correlations/interaction that happened.
 
 
-The idea of the worflow is to help you select your features, getting a simpler model. Then understand your features
-using shapley values and the concept of aproximate prediction.
+The idea of the workflow is to help you select your features, getting a simpler model. Then understand your features
+using shapley values and the concept of approximate prediction.
 
 Always trying to use the **marginal effect** of the calculated shapley values.
 

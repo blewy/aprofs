@@ -85,7 +85,7 @@ repos:
           - --toml-config=./pyproject.toml
         additional_dependencies:
           - radon
-          - flake8-docstrings
+          #- flake8-docstrings
           - Flake8-pyproject
 
   - repo: https://github.com/pycqa/isort

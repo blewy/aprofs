@@ -11,7 +11,7 @@ The second big premise is that you are aquatinted  with shapley values and/or ge
 
 I will add more resources (if i can) here to help you out:
 
-- Shop package used for calculate shapley values [shap package](https://shap.readthedocs.io/en/latest/)
+- SHAP package used for calculate shapley values [shap package](https://shap.readthedocs.io/en/latest/)
 
 - Details about the Shapley Tree Explainer [shap tree explainer](https://shap.readthedocs.io/en/latest/example_notebooks/tabular_examples/tree_based_models/Census%20income%20classification%20with%20LightGBM.html)
 

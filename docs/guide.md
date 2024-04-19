@@ -8,7 +8,7 @@ alongside with you calibration data to get the results you need.
 
 so opne instaciats with all the proper inputs we just need to use the correct methos to get our results.
 
-Its very important to get the shapley values calculated before using the Aprofs object. I've added some wrapper method called **calculate_shaps** where you bring your own model. 
+Its very important to get the shapley values calculated before using the Aprofs object. I've added some wrapper method called **calculate_shaps** where you bring your own model.
 
 This piece of code just wrapped some SHAP package functionality like you see below
 

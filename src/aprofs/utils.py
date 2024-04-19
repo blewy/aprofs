@@ -357,7 +357,6 @@ def plot_data(  # pylint: disable=too-many-arguments
     type_plot: str = "prob",
 ) -> None:
     """
-
     Plot data based on the provided DataFrame and features.
 
     Args:

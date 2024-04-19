@@ -1,5 +1,7 @@
 # aprofs package metadada
 
+![Alt text](./docs/logo.png)
+
 ## aprofs: Approximate Prediction Feature Selection using Shapley Values
 
 Welcome to aprofs, an open-source Python package designed to simplify the process of feature selection using approximate prediction with Shapley values.

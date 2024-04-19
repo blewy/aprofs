@@ -1,7 +1,7 @@
 site_name: aprofs Package
 site_description: "This is a simple example python package."
 
-repo_url: https://github.com/
+repo_url: https://github.com/blewy/aprofs
 repo_name: aprofs
 
 theme:

@@ -4,9 +4,9 @@
 
 Welcome to aprofs, an open-source Python package designed to simplify the process of feature selection using approximate prediction with Shapley values.
 
-The idea is that using on this package yon can speed uo feature selection (in an aproximate way)
+The idea is that using on this package yon can speed uo feature selection (in an approximate way)
 
-Please look at the package website for more resources.
+Please look at the package website for more resources: [Aprofs web](https://blewy.github.io/aprofs/)
 
 ## Features
 

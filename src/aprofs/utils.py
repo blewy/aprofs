@@ -5,6 +5,7 @@ the core functions are used to calculate the SHAP values and expected average SH
 
 from itertools import combinations
 from typing import (
+    Any,
     Callable,
     List,
     Optional,
@@ -49,18 +50,27 @@ def link_function(link: str) -> Callable:
         -2
     """
     if link.lower() == "logistic":
-        def_link = lambda shap_sum: 1 / (1 + np.exp(-shap_sum))
+
+        def def_link(shap_sum):
+            return 1 / (1 + np.exp(-shap_sum))
+
     elif link.lower() == "logarithmic":
-        def_link = lambda shap_sum: np.exp(shap_sum)
+
+        def def_link(shap_sum):
+            return np.exp(shap_sum)
+
     elif link.lower() == "identity":
-        def_link = lambda shap_sum: shap_sum
+
+        def def_link(shap_sum):
+            return shap_sum
+
     else:
         raise ValueError("Invalid link defined. Must be 'logistic', 'logarithmic' or 'identity'.")
     return def_link
 
 
 def calculate_row_sum(
-    data: pd.DataFrame, mean_value: float, columns: List[str], link_function: callable
+    data: pd.DataFrame, mean_value: float, columns: List[str], link_function: Any
 ) -> Union[float, pd.Series]:
     """
     Calculates the row sum of specified columns in a Shapley values DataFrame and applies a link function to the result.
@@ -86,7 +96,7 @@ def calculate_row_sum(
     return link_function(mean_value + data[columns].sum(axis=1))
 
 
-def calculate_all_row_sum(data: pd.DataFrame, mean_value: float, link_function: callable) -> Union[float, pd.Series]:
+def calculate_all_row_sum(data: pd.DataFrame, mean_value: float, link_function: Callable) -> Union[float, pd.Series]:
     """
     Calculates the row sum of **all columns** in a Shapley values DataFrame and applies a link function to the result.
 
@@ -166,9 +176,9 @@ def generate_all_combinations(features: List[str]) -> List[Tuple[str]]:
     Returns:
         List[Tuple[str]]: A list of tuples representing all possible combinations of the features.
     """
-    all_combinations = []
-    for r in range(1, len(features) + 1):
-        all_combinations.extend(combinations(features, r))
+    all_combinations: List = []
+    for feature_size in range(1, len(features) + 1):
+        all_combinations.extend(combinations(features, feature_size))
     return all_combinations
 
 
@@ -177,7 +187,7 @@ def random_sort_shaps(
     shap_expected_value: float,
     feature_name: str,
     y_target: Union[pd.Series, np.ndarray],
-    link_function: callable,
+    link_function: Callable,
 ) -> float:
     """
     Randomly shuffles the values of a specific feature in the SHAP values DataFrame,
@@ -228,12 +238,12 @@ def random_sort_shaps(
     return roc_auc_score(y_target, approx_pred_valid)
 
 
-def random_sort_shaps_column(
+def random_sort_shaps_column(  # pylint: disable=too-many-arguments
     shaps_values: pd.DataFrame,
     shap_mean_value: float,
     target_column: Union[pd.Series, np.ndarray],
     feature: str,
-    link_function: callable,
+    link_function: Callable,
     original: bool = False,
 ) -> float:
     """
@@ -284,8 +294,8 @@ def random_sort_shaps_column(
     average_values = shaps_values.mean()
     new_shap_table = shaps_values.copy()
     new_shap_table.reset_index(inplace=True, drop=True)
-    for feature in shaps_values.columns:
-        new_shap_table[feature] = average_values[feature]
+    for feature_name in shaps_values.columns:
+        new_shap_table[feature_name] = average_values[feature_name]
 
     if original:
         new_shap_table[feature] = shaps_values_original[feature]
@@ -331,14 +341,14 @@ def temp_plot_data(aprofs_obj, features: List[str]) -> pd.DataFrame:
     temp["shap_other"] = aprofs_obj.shap_mean + aprofs_obj.shap_values[
         [col for col in aprofs_obj.shap_values.columns if col not in features]
     ].sum(axis=1)
-    temp[f"shap_prob_other"] = 1 / (1 + np.exp(-temp["shap_other"]))
+    temp["shap_prob_other"] = 1 / (1 + np.exp(-temp["shap_other"]))
     temp["shap_model"] = aprofs_obj.shap_mean + aprofs_obj.shap_values.sum(axis=1)
     temp["shap_prob_model"] = 1 / (1 + np.exp(-temp["shap_model"]))
 
     return temp
 
 
-def plot_data(
+def plot_data(  # pylint: disable=too-many-arguments
     temp: pd.DataFrame,
     main_feature: str,
     other_features: Optional[Union[str, List[str]]] = None,
@@ -347,6 +357,7 @@ def plot_data(
     type_plot: str = "prob",
 ) -> None:
     """
+
     Plot data based on the provided DataFrame and features.
 
     Args:
@@ -432,8 +443,8 @@ def plot_data(
 
     # Update layout to include a secondary y-axis
     fig.update_layout(
-        yaxis=dict(title="Counts", side="left", tickformat=".0%"),
-        yaxis2=dict(title="Avg.", side="right", overlaying="y"),
+        yaxis={"title": "Counts", "side": "left", "tickformat": ".0%"},
+        yaxis2={"title": "Avg.", "side": "right", "overlaying": "y"},
     )
 
     fig.show()

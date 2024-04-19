@@ -28,6 +28,6 @@ jobs:
       - name: Install dependencies
         run: poetry install --only dev
 
-      - name: Deploy docs dependencies 
+      - name: Deploy docs
         run: |
           poetry run mkdocs gh-deploy --force

@@ -90,7 +90,7 @@ function serve-coverage-report {
 # build a wheel and sdist from the Python source code
 function build {
     #python -m build --sdist --wheel "$THIS_DIR/"
-    poetry build  
+    poetry build
 }
 
 # build the documentation using the mlkdocs.yml file

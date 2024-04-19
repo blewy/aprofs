@@ -60,7 +60,7 @@ using the aproximates prediction possible with the shapleo+y value table.
 In tis case the perfoemce of the **feature A** and **feature B**. will be using a prediction the following:
 
     - Shapley A + Shapley Value B + Shap mean value
-  
+
 To this score then its applied the inverse of the link function the get the final prediction.
 In the case of binary classification model its applied the sigmoid function into the model score.
 
@@ -101,6 +101,3 @@ Python script:
         ├── __init__.py
         ├── code.py
         |__ utils.json
-
-
-

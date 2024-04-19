@@ -1,12 +1,11 @@
 """Tests for src.aprofs.code """
 
-from typing import List
-
 import numpy as np
 import pandas as pd
 import pytest
 
 from aprofs.utils import (
+    calculate_all_row_sum,
     calculate_row_sum,
     link_function,
 )
@@ -23,12 +22,12 @@ from aprofs.utils import (
         ("identity", 0, 0),
     ],
 )
-def test_link_function(link, input_value, expected_output):
+def test__link_function(link, input_value, expected_output):
     func = link_function(link)
     assert np.isclose(func(input_value), expected_output, atol=1e-6)
 
 
-def test_link_function_invalid_link():
+def test__link_function_invalid_link():
     with pytest.raises(ValueError):
         link_function("invalid_link")
 
@@ -47,7 +46,7 @@ def test_link_function_invalid_link():
         ),
     ],
 )
-def test_calculate_row_sum(data, features, expected_value, link, expected_output):
+def test__calculate_row_sum(data, features, expected_value, link, expected_output):
     assert calculate_row_sum(data, expected_value, columns=features, link_function=link_function(link)).equals(
         expected_output
     )
@@ -66,5 +65,5 @@ def test_calculate_row_sum(data, features, expected_value, link, expected_output
         ),
     ],
 )
-def calculate_all_row_sum(data, expected_value, link, expected_output):
-    assert calculate_row_sum(data, expected_value, link_function=link_function(link)).equals(expected_output)
+def test__calculate_all_row_sum(data, expected_value, link, expected_output):
+    assert calculate_all_row_sum(data, expected_value, link_function=link_function(link)).equals(expected_output)

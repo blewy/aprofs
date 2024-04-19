@@ -24,7 +24,7 @@ install:
 	bash run.sh install
 
 export-requirements:
-	bash run.sh export:requirements 
+	bash run.sh export:requirements
 
 lint:
 	bash run.sh lint

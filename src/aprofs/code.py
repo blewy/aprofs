@@ -1,8 +1,12 @@
-"""Core code development of the Aprofs class. This class is used to calculate the SHAP values of a model and
-    evaluate the performance of the features based on the SHAP values. The class also provides a method to
-    visualize the marginal effect of a feature on the target variable. The class is used to perform feature
-    selection based on the SHAP values and to calculate the p-values of the SHAP values of the features.
-    The class is also used to calculate the performance of the model based on the SHAP values of the features."""
+"""
+Core code development of the Aprofs class.
+
+This class is used to calculate the SHAP values of a model and
+evaluate the performance of the features based on the SHAP values. The class also provides a method to
+visualize the marginal effect of a feature on the target variable. The class is used to perform feature
+selection based on the SHAP values and to calculate the p-values of the SHAP values of the features.
+The class is also used to calculate the performance of the model based on the SHAP values of the features.
+"""
 
 # Importing the required libraries
 from typing import (
@@ -11,14 +15,14 @@ from typing import (
 )
 
 import pandas as pd
+import utils
 from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
 
-import aprofs.utils as utils
-
 
 class Aprofs:
-    """A class for analyzing SHAP values using approximate predictions.
+    """
+    A class for analyzing SHAP values using approximate predictions.
 
     Attributes:
         current_data (pd.DataFrame): The current data.
@@ -142,7 +146,7 @@ class Aprofs:
 
         return pd.DataFrame({"Feature": features, "p-value_shap": p_values})
 
-    def visualize_feature(
+    def visualize_feature(  # pylint: disable=too-many-arguments
         self,
         main_feature: str,
         other_features: List[str] = None,

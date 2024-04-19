@@ -6,11 +6,11 @@ This site contains the project documentation for the
 This is a side project that allows to implement some of the ideas that came from the
 investigation about how can we use shapley values to get aproximate predictions.
 
-In here we take account og the additive nature of shapley values, and disregard a bit the potential 
+In here we take account og the additive nature of shapley values, and disregard a bit the potential
 problems with correlations/interaction that happened.
 
 
-The idea of the worflow is to help you select your features, getting a simpler model. Then understand your features 
+The idea of the worflow is to help you select your features, getting a simpler model. Then understand your features
 using shapley values and the concept of aproximate prediction.
 
 Always trying to use the **marginal effect** of the calculated shapley values.

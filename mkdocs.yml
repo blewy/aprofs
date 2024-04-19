@@ -46,4 +46,4 @@ nav:
   - "Guides": guide.md
   - "Reference": reference.md
   - "API": api.md
-  - "Notebook page": Tutorial.ipynb
+  #- "Notebook page": Tutorial.ipynb

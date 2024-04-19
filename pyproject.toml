@@ -54,7 +54,6 @@ mkdocstrings-python = "^1.9.2"
 mkdocs-material = "^9.5.17"
 Pygments = "^2.17.2"
 mkdocs-jupyter = "^0.24.7"
-mkdocs-plotly-plugin = "^0.1.3"
 
 
 

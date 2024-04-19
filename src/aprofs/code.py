@@ -15,9 +15,10 @@ from typing import (
 )
 
 import pandas as pd
-import utils
 from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
+
+from aprofs import utils
 
 
 class Aprofs:

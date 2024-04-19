@@ -42,8 +42,7 @@ markdown_extensions:
 nav:
   - "Start": index.md
   - "Tutorials": tutorials.md
-  #- "Notebook page": Test.ipynb
   - "Guides": guide.md
   - "Reference": reference.md
   - "API": api.md
-  #- "Notebook page": Tutorial.ipynb
+  - "Notebook page": Tutorial.ipynb

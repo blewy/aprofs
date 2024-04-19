@@ -1,4 +1,4 @@
-# aprofs Package
+# aprofs Package - Aproximate Predictions for Feature Selection
 
 This site contains the project documentation for the
 `aprofs` project.

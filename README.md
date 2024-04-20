@@ -23,7 +23,7 @@ Please look at the package website for more resources: [Aprofs web](https://blew
 You can install aProfs via pip:
 
 ```bash
-pip install aProfs
+pip install git+https://github.com/blewy/aprofs
 ```
 
 Usage

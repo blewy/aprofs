@@ -194,3 +194,43 @@ class Aprofs:
             type_bins=type_bins,
             type_plot=type_plot,
         )
+
+    def compare_feature(  # pylint: disable=too-many-arguments
+        self,
+        other,
+        feature: str,
+        nbins: int = 20,
+        type_bins: str = "qcut",
+        type_plot: str = "prob",
+    ) -> None:
+        """
+        Visualize the marginal effect of a feature on the target variable.
+
+        Parameters:
+            feature (str): The main feature for which to visualize the marginal effect.
+            nbins (int): The number of bins to use for the visualization. Default is 20.
+            type_bins (str): The type of binning to use. Default is "qcut".
+            type_plot (str): The type of plot to generate. Default is "prob".
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If an any feature is missing in the SHAP values.
+        """
+
+        if not isinstance(other, Aprofs):
+            raise ValueError("Can only compare with another Aprofs object")
+
+        if feature not in self.shap_values.columns:
+            raise ValueError(f"The following feature are missing in the SHAP values: {feature}")
+
+        temp_data = utils.temp_plot_compare_data(self, other, feature)
+        # call plotting function
+        utils.plot_data_compare(
+            temp_data,
+            feature,
+            nbins=nbins,
+            type_bins=type_bins,
+            type_plot=type_plot,
+        )

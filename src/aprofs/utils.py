@@ -348,6 +348,48 @@ def temp_plot_data(aprofs_obj, features: List[str]) -> pd.DataFrame:
     return temp
 
 
+def temp_plot_compare_data(aprofs_obj_self, aprofs_obj, feature: str) -> pd.DataFrame:
+    """
+    Generate a temporary DataFrame for plotting purposes.
+
+    Args:
+        aprofs_obj_self (Aprofs Object): An instance of the Aprofs class.
+        aprofs_obj (Aprofs Object): An instance of the Aprofs class.
+        feature (str): feature to compare.
+
+    Returns:
+        pd.DataFrame: The temporary DataFrame.
+
+    Examples:
+        >>> aprofs_obj = Aprofs Object(...)
+        >>> aprofs_obj_2_compare = Aprofs Object(...)
+        >>> features = 'feature_1'
+        >>> temp = temp_plot_data(aprofs_obj,aprofs_obj_2_compare, feature)
+        >>> print(temp.head())
+    """
+
+    temp = pd.DataFrame(
+        {
+            "target": aprofs_obj_self.target_column,
+        }
+    )
+
+    # self data
+    temp[feature] = aprofs_obj_self.current_data[feature].values
+    temp[f"{feature}_shap"] = aprofs_obj_self.shap_mean + aprofs_obj_self.shap_values[feature].values
+    temp[f"{feature}_shap_prob"] = 1 / (1 + np.exp(-temp[f"{feature}_shap"]))
+
+    # compare data
+    temp[f"{feature}_shap_compare"] = aprofs_obj.shap_mean + aprofs_obj.shap_values[feature].values
+    temp[f"{feature}_shap_prob_compare"] = 1 / (1 + np.exp(-temp[f"{feature}_shap_compare"]))
+
+    # model probabilities data
+    temp["shap_model"] = aprofs_obj.shap_mean + aprofs_obj.shap_values.sum(axis=1)
+    temp["shap_prob_model"] = 1 / (1 + np.exp(-temp["shap_model"]))
+
+    return temp
+
+
 def plot_data(  # pylint: disable=too-many-arguments
     temp: pd.DataFrame,
     main_feature: str,
@@ -434,6 +476,101 @@ def plot_data(  # pylint: disable=too-many-arguments
             x=means_shap_others.index.astype(str), y=means_shap_others, mode="lines", name="Others shaps", yaxis="y2"
         )
     )
+    fig.add_trace(
+        go.Scatter(
+            x=means_shap_model.index.astype(str), y=means_shap_model, mode="lines", name="Model shaps", yaxis="y2"
+        )
+    )
+
+    # Update layout to include a secondary y-axis
+    fig.update_layout(
+        yaxis={"title": "Counts", "side": "left", "tickformat": ".0%"},
+        yaxis2={"title": "Avg.", "side": "right", "overlaying": "y"},
+    )
+
+    fig.show()
+
+
+def plot_data_compare(  # pylint: disable=too-many-arguments
+    temp: pd.DataFrame,
+    feature: str,
+    nbins: int = 20,
+    type_bins: str = "qcut",
+    type_plot: str = "prob",
+) -> None:
+    """
+    Plot data based on the provided DataFrame and feature in a way to compare a specific shap.
+
+    Args:
+        temp (pd.DataFrame): The DataFrame containing the data.
+        feature (str): The main feature to plot.
+        nbins (int, optional): The number of bins. Defaults to 20.
+        type_bins (str, optional): The type of binning. Defaults to "qcut".
+        type_plot (str, optional): The type of plot. Defaults to "prob".
+
+    Returns:
+        None
+
+    Examples:
+        >>> temp = pd.DataFrame(...)
+        >>> plot_data(temp, "feature_name", nbins=10, type_bins="cut", type_plot="raw")
+    """
+
+    if temp[feature].unique().shape[0] < 25:
+        temp["bins"] = temp[feature].astype(str)
+    elif type_bins == "cut":
+        temp["bins"] = pd.cut(temp[feature], bins=nbins)
+    elif type_bins == "qcut":
+        temp["bins"] = pd.qcut(temp[feature], q=nbins)
+    else:
+        print("Invalid type_bins value")
+
+    # Calculate the means for each bin
+    means = temp.groupby("bins", observed=True)["target"].mean()
+
+    means_shap = {}
+    if type_plot == "raw":
+        means_shap[feature] = temp.groupby("bins", observed=True)[f"{feature}_shap"].mean()
+        means_shap[f"{feature}_shap"] = temp.groupby("bins", observed=True)[f"{feature}_shap"].mean()
+        means_shap[f"{feature}_shap_compare"] = temp.groupby("bins", observed=True)[f"{feature}_shap_compare"].mean()
+        means_shap_model = temp.groupby("bins", observed=True)["shap_model"].mean()
+    else:
+        means_shap[feature] = temp.groupby("bins", observed=True)[f"{feature}_shap_prob"].mean()
+        means_shap[f"{feature}_compare"] = temp.groupby("bins", observed=True)[f"{feature}_shap_prob_compare"].mean()
+        means_shap_model = temp.groupby("bins", observed=True)["shap_prob_model"].mean()
+
+    # Calculate the counts for each bin
+    counts = temp["bins"].value_counts(normalize=True).sort_index()
+
+    # Create a figure
+    fig = go.Figure()
+
+    # Add bar plot for counts on the primary y-axis
+    fig.add_trace(go.Bar(x=counts.index.astype(str), y=counts, name="Data", yaxis="y", marker_color="lightgray"))
+
+    # Add line plots on the secondary y-axis
+    fig.add_trace(go.Scatter(x=means.index.astype(str), y=means, mode="lines", name="Observed", yaxis="y2"))
+
+    fig.add_trace(
+        go.Scatter(
+            x=means_shap[feature].index.astype(str),
+            y=means_shap[feature],
+            mode="lines",
+            name=f"{feature} shap Mean",
+            yaxis="y2",
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=means_shap[f"{feature}_compare"].index.astype(str),
+            y=means_shap[f"{feature}_compare"],
+            mode="lines",
+            name=f"{feature} shap Mean compare",
+            yaxis="y2",
+        )
+    )
+
     fig.add_trace(
         go.Scatter(
             x=means_shap_model.index.astype(str), y=means_shap_model, mode="lines", name="Model shaps", yaxis="y2"

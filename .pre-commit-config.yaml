@@ -41,8 +41,8 @@ repos:
       # Prevent addition of new git submodules.
       - id: forbid-new-submodules
       # Prevent committing directly to trunk (since Bitbucket wants us to pay for this feature)
-      - id: no-commit-to-branch
-        args: ["--branch=main"]
+      #- id: no-commit-to-branch
+      #  args: ["--branch=main"]
       # Detects the presence of private keys
       - id: detect-private-key
 

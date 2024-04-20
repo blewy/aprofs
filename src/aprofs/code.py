@@ -171,7 +171,7 @@ class Aprofs:
             None
 
         Raises:
-            ValueError: If an any feature is missing in the SHAP values.
+            ValueError: If an any feature is missing in the SHAP values dataframe.
         """
         # generate data to plot marginal effect shapley values
         if other_features is None:

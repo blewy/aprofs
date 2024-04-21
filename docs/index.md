@@ -9,8 +9,18 @@ investigation about how can we use shapley values to get approximate predictions
 In here we take account og the additive nature of shapley values, and disregard a bit the potential
 problems with correlations/interaction that happened.
 
+You can install it from github like this:
+```bash
+pip install git+https://github.com/blewy/aprofs
+```
 
-The idea of the workflow is to help you select your features, getting a simpler model. Then understand your features
+or from, **pypy testing** like this:
+
+```bash
+pip install -i https://test.pypi.org/simple/ aprofs
+```
+
+The idea of the package is to help you select your features, getting a simpler model, then understand your features
 using shapley values and the concept of approximate prediction.
 
 Always trying to use the **marginal effect** of the calculated shapley values.

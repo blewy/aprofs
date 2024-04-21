@@ -6,32 +6,28 @@
 
 Welcome to aprofs, an open-source Python package designed to simplify the process of feature selection using approximate prediction with Shapley values.
 
-The idea is that using on this package yon can speed uo feature selection (in an approximate way)
+The idea is that using on this package you can speed up feature selection (in an approximate way).
 
-Please look at the package website for more resources: [Aprofs web](https://blewy.github.io/aprofs/)
+Please look at the package website for more resources: [Aprofs Documentation](https://blewy.github.io/aprofs/)
 
 ## Features
 
 - **Feature Selection**: aprofs uses Shapley values, a concept from cooperative game theory, to identify the most important features in your dataset.
 
-- **Feature Visualization**: aprofs uses Shapley values to check the marginal behavior of the feature useds by the model.
-
-
+- **Feature Visualization**: aprofs uses Shapley values to check the marginal behavior of the feature used by the model using pdp plots.
 
 ## Installation
-
-You can install aProfs via pip:
+You can install aprofs via pip:
 
 ```bash
 pip install git+https://github.com/blewy/aprofs
 ```
 
-Usage
+## Usage
+Please look into the website here: [Aprofs Documentation](https://blewy.github.io/aprofs/)
 
-please look into the website here:
-
-Contributing
-As an open-source project, we welcome contributions from the community. I will crete a CONTRIBUTING.md for guidelines on how to contribute.
+## Contributing
+As an open-source project, we welcome contributions from the community. I will create a CONTRIBUTING.md for guidelines on how to contribute.
 
 License
 This project is licensed under the terms of the MIT license.

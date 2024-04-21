@@ -23,7 +23,13 @@ I will add more resources (if I can) here to help you out:
 
 - This interesting book about Shapley values [Interpreting Machine Learning Models With SHAP](https://christophmolnar.com/books/shap/) also from Christoph Molnar
 
+### Shap Visualizations
+
+- [stackoverflow](https://stackoverflow.com/questions/65024195/add-regression-line-to-a-shap-dependence-plot)
+- [shap_dependence_plot](https://github.com/shap/shap/blob/master/shap/plots/_partial_dependence.py)
+- [shap_pdp](https://www.kaggle.com/code/dansbecker/advanced-uses-of-shap-values)
+
 
 ### P-values
 
-About cresting p-values, please take a look at this chapter from the book [Feature Engineering and Selection: A Practical Approach for Predictive Models](http://www.feat.engineering/greedy-simple-filters) from  Max Kuhn and Kjell Johnson
+About creating **p-values**, please take a look at this chapter from the book [Feature Engineering and Selection: A Practical Approach for Predictive Models](http://www.feat.engineering/greedy-simple-filters) from  Max Kuhn and Kjell Johnson

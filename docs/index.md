@@ -19,7 +19,7 @@ Always trying to use the **marginal effect** of the calculated shapley values.
 
 The documentation consists of four separate parts:
 
-1. [Tutorials](tutorials.md) Basic Tutorial on how to use the package with some example data.
+1. [Tutorials](Tutorial.ipynb) Basic Tutorial on how to use the package with some example data.
 2. [How-To Guides](guide.md) Explain the intended utilization of the package functionality
 3. [Reference](reference.md) Reference code, math and explanations of the built in functionality
 4. [API](api.md) Code documentation

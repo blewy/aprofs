@@ -1,5 +1,7 @@
 """Tests for src.aprofs.code """
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -9,6 +11,9 @@ from aprofs.utils import (
     calculate_row_sum,
     link_function,
 )
+
+data_dir = Path(__file__).parent.parent / "docs"  # Navigate up to the project root
+data_path = data_dir / "insurance.csv"
 
 
 @pytest.mark.parametrize(

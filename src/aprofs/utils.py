@@ -307,89 +307,6 @@ def random_sort_shaps_column(  # pylint: disable=too-many-arguments
     return roc_auc_score(target_column, approx_pred_valid)
 
 
-def temp_plot_data(aprofs_obj, features: List[str]) -> pd.DataFrame:
-    """
-    Generate a temporary DataFrame for plotting purposes.
-
-    Args:
-        aprofs_obj (Aprofs Object): An instance of the Aprofs class.
-        features (List[str]): A list of feature names.
-
-    Returns:
-        pd.DataFrame: The temporary DataFrame.
-
-    Examples:
-        >>> aprofs_obj = Aprofs Object(...)
-        >>> features = ['feature_1', 'feature_2']
-        >>> temp = temp_plot_data(aprofs_obj, features)
-        >>> print(temp.head())
-    """
-    if not isinstance(features, list):
-        features = [features]
-
-    temp = pd.DataFrame(
-        {
-            "target": aprofs_obj.target_column,
-        }
-    )
-
-    for feature in features:
-        temp[feature] = aprofs_obj.current_data[feature].values
-        temp[f"{feature}_shap"] = aprofs_obj.shap_mean + aprofs_obj.shap_values[feature].values
-        temp[f"{feature}_shap_prob"] = 1 / (1 + np.exp(-temp[f"{feature}_shap"]))
-
-    temp["shap_other"] = aprofs_obj.shap_mean + aprofs_obj.shap_values[
-        [col for col in aprofs_obj.shap_values.columns if col not in features]
-    ].sum(axis=1)
-    temp["shap_prob_other"] = 1 / (1 + np.exp(-temp["shap_other"]))
-    temp["shap_model"] = aprofs_obj.shap_mean + aprofs_obj.shap_values.sum(axis=1)
-    temp["shap_prob_model"] = 1 / (1 + np.exp(-temp["shap_model"]))
-
-    return temp
-
-
-def temp_plot_compare_data(aprofs_obj_self, aprofs_obj, feature: str) -> pd.DataFrame:
-    """
-    Generate a temporary DataFrame for plotting purposes.
-
-    Args:
-        aprofs_obj_self (Aprofs Object): An instance of the Aprofs class.
-        aprofs_obj (Aprofs Object): An instance of the Aprofs class.
-        feature (str): feature to compare.
-
-    Returns:
-        pd.DataFrame: The temporary DataFrame.
-
-    Examples:
-        >>> aprofs_obj = Aprofs Object(...)
-        >>> aprofs_obj_2_compare = Aprofs Object(...)
-        >>> features = 'feature_1'
-        >>> temp = temp_plot_data(aprofs_obj,aprofs_obj_2_compare, feature)
-        >>> print(temp.head())
-    """
-
-    temp = pd.DataFrame(
-        {
-            "target": aprofs_obj_self.target_column,
-        }
-    )
-
-    # self data
-    temp[feature] = aprofs_obj_self.current_data[feature].values
-    temp[f"{feature}_shap"] = aprofs_obj_self.shap_mean + aprofs_obj_self.shap_values[feature].values
-    temp[f"{feature}_shap_prob"] = 1 / (1 + np.exp(-temp[f"{feature}_shap"]))
-
-    # compare data
-    temp[f"{feature}_shap_compare"] = aprofs_obj.shap_mean + aprofs_obj.shap_values[feature].values
-    temp[f"{feature}_shap_prob_compare"] = 1 / (1 + np.exp(-temp[f"{feature}_shap_compare"]))
-
-    # model probabilities data
-    temp["shap_model"] = aprofs_obj.shap_mean + aprofs_obj.shap_values.sum(axis=1)
-    temp["shap_prob_model"] = 1 / (1 + np.exp(-temp["shap_model"]))
-
-    return temp
-
-
 def plot_data(  # pylint: disable=too-many-arguments
     temp: pd.DataFrame,
     main_feature: str,
@@ -491,6 +408,47 @@ def plot_data(  # pylint: disable=too-many-arguments
     fig.show()
 
 
+def temp_plot_data(aprofs_obj, features: List[str]) -> pd.DataFrame:
+    """
+    Generate a temporary DataFrame for plotting purposes.
+
+    Args:
+        aprofs_obj (Aprofs Object): An instance of the Aprofs class.
+        features (List[str]): A list of feature names.
+
+    Returns:
+        pd.DataFrame: The temporary DataFrame.
+
+    Examples:
+        >>> aprofs_obj = Aprofs Object(...)
+        >>> features = ['feature_1', 'feature_2']
+        >>> temp = temp_plot_data(aprofs_obj, features)
+        >>> print(temp.head())
+    """
+    if not isinstance(features, list):
+        features = [features]
+
+    temp = pd.DataFrame(
+        {
+            "target": aprofs_obj.target_column,
+        }
+    )
+
+    for feature in features:
+        temp[feature] = aprofs_obj.current_data[feature].values
+        temp[f"{feature}_shap"] = aprofs_obj.shap_mean + aprofs_obj.shap_values[feature].values
+        temp[f"{feature}_shap_prob"] = 1 / (1 + np.exp(-temp[f"{feature}_shap"]))
+
+    temp["shap_other"] = aprofs_obj.shap_mean + aprofs_obj.shap_values[
+        [col for col in aprofs_obj.shap_values.columns if col not in features]
+    ].sum(axis=1)
+    temp["shap_prob_other"] = 1 / (1 + np.exp(-temp["shap_other"]))
+    temp["shap_model"] = aprofs_obj.shap_mean + aprofs_obj.shap_values.sum(axis=1)
+    temp["shap_prob_model"] = 1 / (1 + np.exp(-temp["shap_model"]))
+
+    return temp
+
+
 def plot_data_compare(  # pylint: disable=too-many-arguments
     temp: pd.DataFrame,
     feature: str,
@@ -584,3 +542,45 @@ def plot_data_compare(  # pylint: disable=too-many-arguments
     )
 
     fig.show()
+
+
+def temp_plot_compare_data(aprofs_obj_self, aprofs_obj, feature: str) -> pd.DataFrame:
+    """
+    Generate a temporary DataFrame for plotting purposes.
+
+    Args:
+        aprofs_obj_self (Aprofs Object): An instance of the Aprofs class.
+        aprofs_obj (Aprofs Object): An instance of the Aprofs class.
+        feature (str): feature to compare.
+
+    Returns:
+        pd.DataFrame: The temporary DataFrame.
+
+    Examples:
+        >>> aprofs_obj = Aprofs Object(...)
+        >>> aprofs_obj_2_compare = Aprofs Object(...)
+        >>> features = 'feature_1'
+        >>> temp = temp_plot_data(aprofs_obj,aprofs_obj_2_compare, feature)
+        >>> print(temp.head())
+    """
+
+    temp = pd.DataFrame(
+        {
+            "target": aprofs_obj_self.target_column,
+        }
+    )
+
+    # self data
+    temp[feature] = aprofs_obj_self.current_data[feature].values
+    temp[f"{feature}_shap"] = aprofs_obj_self.shap_mean + aprofs_obj_self.shap_values[feature].values
+    temp[f"{feature}_shap_prob"] = 1 / (1 + np.exp(-temp[f"{feature}_shap"]))
+
+    # compare data
+    temp[f"{feature}_shap_compare"] = aprofs_obj.shap_mean + aprofs_obj.shap_values[feature].values
+    temp[f"{feature}_shap_prob_compare"] = 1 / (1 + np.exp(-temp[f"{feature}_shap_compare"]))
+
+    # model probabilities data
+    temp["shap_model"] = aprofs_obj.shap_mean + aprofs_obj.shap_values.sum(axis=1)
+    temp["shap_prob_model"] = 1 / (1 + np.exp(-temp["shap_model"]))
+
+    return temp

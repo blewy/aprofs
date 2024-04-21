@@ -7,7 +7,24 @@ on:
     branches: [ main, master ]
 
 jobs:
+  lint-format-and-static-code-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - name: Install pre-commit
+        run: |
+          pip install pre-commit
+      - name: Lint, Format, and other static code quality checks
+        run: |
+          /bin/bash -x run.sh lint:ci
+
   build-windows:
+    needs:
+      - lint-format-and-static-code-checks
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
@@ -26,6 +43,8 @@ jobs:
         python -m pytest tests
 
   build-linux:
+    needs:
+      - lint-format-and-static-code-checks
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -45,6 +64,8 @@ jobs:
         python -m codecov
 
   build-macos:
+    needs:
+      - lint-format-and-static-code-checks
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2

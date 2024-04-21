@@ -12,11 +12,18 @@ The second big premise is that you are acquainted with shapley values and/or get
 
 I will add more resources (if I can) here to help you out:
 
+### Shapley values
+
 - SHAP package used for calculate shapley values [shap package](https://shap.readthedocs.io/en/latest/)
 
 - Details about the Shapley Tree Explainer [shap tree explainer](https://shap.readthedocs.io/en/latest/example_notebooks/tabular_examples/tree_based_models/Census%20income%20classification%20with%20LightGBM.html)
 
 
-- Shapley value reference book [reference](https://christophm.github.io/interpretable-ml-book/shapley.html)
+- Shapley value reference book [Interpretable Machine Learning](https://christophm.github.io/interpretable-ml-book/shapley.html) from Christoph Molnar (https://christophmolnar.com)
 
-- This interesting book about Shapley values [book](https://christophmolnar.com/books/shap/)
+- This interesting book about Shapley values [Interpreting Machine Learning Models With SHAP](https://christophmolnar.com/books/shap/) also from Christoph Molnar
+
+
+### P-values
+
+About cresting p-values, please take a look at this chapter from the book [Feature Engineering and Selection: A Practical Approach for Predictive Models](http://www.feat.engineering/greedy-simple-filters) from  Max Kuhn and Kjell Johnson

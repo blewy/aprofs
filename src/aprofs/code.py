@@ -117,7 +117,7 @@ class Aprofs:
                 best_auc = auc
                 best_list = comb
         print(f"the best list is {best_list} with auc {best_auc}")
-        return best_list
+        return list(best_list)
 
     def get_shap_p_value(self, features: List[str], suffle_size: int = 500) -> pd.DataFrame:
         """

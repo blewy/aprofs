@@ -124,6 +124,28 @@ def performance_fit(shaps_values, shap_expected_value, features, y_valid, link_f
     return roc_auc_score(y_valid, aprox_preds)
 
 
+def best_feature(  # pylint: disable=too-many-arguments
+    shaps_values,
+    shap_expected_values,
+    link_function,
+    y_target,
+    current_list,
+    candidate_list,
+):
+    """Return the best feature to add to the current list."""
+    best_feature = None
+    best_auc = 0
+    for feature in candidate_list:
+        current_list.append(feature)
+        aprox_preds = calculate_row_sum(shaps_values, shap_expected_values, current_list, link_function)
+        auc = roc_auc_score(y_target, aprox_preds)
+        if auc > best_auc:
+            best_auc = auc
+            best_feature = feature
+        current_list.remove(feature)
+    return best_feature, best_auc
+
+
 def get_shap_tree_values(data: pd.DataFrame, model: Callable) -> Tuple[pd.DataFrame, float]:
     """
     Calculates the SHAP values and expected average shap value for a given dataset and model.

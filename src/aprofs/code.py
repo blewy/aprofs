@@ -119,6 +119,27 @@ class Aprofs:
         print(f"the best list is {best_list} with auc {best_auc}")
         return list(best_list)
 
+    def gready_forward_selection(self, features: List[str], greediness: float = 0.001) -> List[str]:
+        best_list: List = []
+        candidate_list: List[str] = features.copy()
+        aproximate_auc: List[float] = []
+        best_auc = 0
+        while len(candidate_list) > 0:
+            best_feature_, best_auc_ = utils.best_feature(
+                self.shap_values, self.shap_mean, self.link, self.target_column, best_list, candidate_list
+            )
+            candidate_list.remove(best_feature_)
+
+            if best_auc > best_auc_ * (1 + greediness):
+                print(f"The feature {best_feature_} wont be added")
+            else:
+                best_auc = best_auc_
+                best_list.append(best_feature_)
+                print(f"the best feature to add is {best_feature_} with auc {best_auc_}")
+                aproximate_auc.append(best_auc_)
+
+        return best_list
+
     def get_shap_p_value(self, features: List[str], suffle_size: int = 500) -> pd.DataFrame:
         """
         Calculate the p-values of the SHAP values of the features.

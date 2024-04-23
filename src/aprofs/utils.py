@@ -125,16 +125,36 @@ def performance_fit(shaps_values, shap_expected_value, features, y_valid, link_f
 
 
 def best_feature(  # pylint: disable=too-many-arguments
-    shaps_values,
-    shap_expected_values,
-    link_function,
-    y_target,
-    current_list,
-    candidate_list,
-):
-    """Return the best feature to add to the current list."""
-    best_feature = None
-    best_auc = 0
+    shaps_values: pd.DataFrame,
+    shap_expected_values: float,
+    link_function: Callable,
+    y_target: pd.Series,
+    current_list: List[str],
+    candidate_list: List[str],
+) -> Tuple[str, float]:
+    """
+    Return the best feature to add to the current list based on the highest AUC score.
+
+    Args:
+        shaps_values (DataFrame): A DataFrame containing SHAP values for each feature.
+        shap_expected_values (Series): A Series containing the expected SHAP values.
+        link_function (function): A function to link the SHAP values and expected values.
+        y_target (Series): The target variable for the AUC score calculation.
+        current_list (list): The current list of features.
+        candidate_list (list): The list of candidate features to consider adding.
+
+    Returns:
+        tuple: A tuple containing the best feature to add (str) and the corresponding best AUC score (float).
+
+    Raises:
+        ValueError: If `candidate_list` is empty.
+    """
+
+    if candidate_list == [] or candidate_list is None:
+        raise ValueError("The candidate list cannot be empty.")
+
+    best_feature: str = None
+    best_auc: float = 0
     for feature in candidate_list:
         current_list.append(feature)
         aprox_preds = calculate_row_sum(shaps_values, shap_expected_values, current_list, link_function)

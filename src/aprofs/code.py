@@ -120,10 +120,26 @@ class Aprofs:
         return list(best_list)
 
     def gready_forward_selection(self, features: List[str], greediness: float = 0.001) -> List[str]:
+        """
+        Perform gready forward feature selection by evaluating the performance of all possible combinations of features.
+
+        Parameters:
+            features (List[str]): The list of features to consider for feature selection.
+            greediness (float): The greediness factor, how much better needs to be the performance to add the feature. Default is 0.001.
+        Returns:
+            List[str]: The best list of features with the highest performance.
+
+        Raises:
+            ValueError: If an any feature is missing in the SHAP values.
+        """
+        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
+        if missing_features:
+            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
+
         best_list: List = []
         candidate_list: List[str] = features.copy()
         aproximate_auc: List[float] = []
-        best_auc = 0
+        best_auc = 0.0
         while len(candidate_list) > 0:
             best_feature_, best_auc_ = utils.best_feature(
                 self.shap_values, self.shap_mean, self.link, self.target_column, best_list, candidate_list

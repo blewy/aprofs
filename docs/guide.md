@@ -78,7 +78,7 @@ aprofs_obj.brute_force_selection(["list of features"])
 It will return a list with the best subset of features.
 
 
-For the greedy gready_forward_selection use: 
+For the greedy gready_forward_selection use:
 
 ``` py  title="Feature selection"
 aprofs_obj.brute_force_selection(["list of features"])

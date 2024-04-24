@@ -2,9 +2,9 @@ name: ci-test
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, development ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, development ]
 
 jobs:
   lint-format-and-static-code-checks:

@@ -20,7 +20,7 @@ Please look at the package website for more resources: [Aprofs Documentation](ht
 You can install aprofs via pip:
 
 ```bash
-pip install git+https://github.com/blewy/aprofs
+pip install aprofs==0.0.1
 ```
 
 ## Usage

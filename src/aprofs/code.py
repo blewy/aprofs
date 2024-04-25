@@ -57,17 +57,19 @@ class Aprofs:
             )
         )
 
-    def calculate_shaps(self, model: Any) -> None:
+    def calculate_shaps(self, model: Any, type_model="tree") -> None:
         """
         Calculate the SHAP values for the given model.
 
         Parameters:
             model (Any): The trained model for which to calculate the SHAP values.
+            type_model (str): type of model: tree based or other. If "tree" then TreeExplainer will be use, otherwise a general explainer from the SHAP package is used. Defaults to 'tree'.
+
 
         Returns:
             None
         """
-        shap_values, shap_mean = utils.get_shap_tree_values(self.current_data, model)
+        shap_values, shap_mean = utils.get_shap_values(self.current_data, model, type_model)
         self.shap_values = pd.DataFrame(shap_values, index=self.current_data.index, columns=self.current_data.columns)
         self.shap_mean = shap_mean
 

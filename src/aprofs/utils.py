@@ -16,7 +16,10 @@ from typing import (
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from shap import TreeExplainer
+from shap import (
+    Explainer,
+    TreeExplainer,
+)
 from sklearn.metrics import roc_auc_score
 
 
@@ -166,18 +169,19 @@ def best_feature(  # pylint: disable=too-many-arguments
     return best_feature, best_auc
 
 
-def get_shap_tree_values(data: pd.DataFrame, model: Callable) -> Tuple[pd.DataFrame, float]:
+def get_shap_values(data: pd.DataFrame, model: Callable, type_model="tree") -> Tuple[pd.DataFrame, float]:
     """
     Calculates the SHAP values and expected average shap value for a given dataset and model.
 
     Args:
         data (numpy.ndarray or pandas.DataFrame): The input dataset.
         model: The trained model object.
+        type_model (str): type of model: tree based or other. If "tree" then TreeExplainer will be use, otherwise a general explainer from the SHAP package is used. Defaults to 'tree'.
 
     Returns:
         tuple: A tuple containing the SHAP values and the Average shap value.
 
-    Example:
+    Examples:
         >>> # Imports
         >>> import numpy as np
         >>> from xgboost import XGBClassifier
@@ -200,9 +204,14 @@ def get_shap_tree_values(data: pd.DataFrame, model: Callable) -> Tuple[pd.DataFr
         >>> # Calculate SHAP values and expected value
         >>> shap_values, expected_value = get_shap_tree_values(X_test, model)
     """
-    shap_explainer = TreeExplainer(model)
-    shap_valid = shap_explainer.shap_values(data)
-    shap_expected_value = shap_explainer.expected_value
+    if type_model == "tree":
+        shap_explainer = TreeExplainer(model)
+        shap_valid = shap_explainer.shap_values(data)
+        shap_expected_value = shap_explainer.expected_value
+    else:
+        shap_explainer = Explainer(model)
+        shap_valid = shap_explainer.shap_values(data)
+        shap_expected_value = shap_explainer.expected_value
 
     return shap_valid, shap_expected_value
 

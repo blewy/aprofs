@@ -273,3 +273,53 @@ class Aprofs:
             type_bins=type_bins,
             type_plot=type_plot,
         )
+
+    def visualize_neutralized_feature(  # pylint: disable=too-many-arguments
+        self,
+        main_feature: str,
+        neutralize_features: List[str] = None,
+        nbins: int = 20,
+        type_bins: str = "qcut",
+        type_plot: str = "prob",
+    ) -> None:
+        """
+        Visualize the marginal effect of a feature on the target variable after neutralizing the effect of other features.
+
+        Parameters:
+            main_feature (str): The main feature for which to visualize the marginal effect.
+            neutralize_features (List[str]): The list of other features to be neutralized.
+            nbins (int): The number of bins to use for the visualization. Default is 20.
+            type_bins (str): The type of binning to use. Default is "qcut".
+            type_plot (str): The type of plot to generate. Default is "prob".
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If an any feature is missing in the SHAP values dataframe.
+        """
+        # generate data to plot marginal effect shapley values
+        if neutralize_features is None:
+            neutralize_features = []
+        features = []
+        if not isinstance(neutralize_features, list):
+            neutralize_features = [neutralize_features]
+
+        features.append(main_feature)
+        features.extend(neutralize_features)
+        features = list(set(features))  # remove duplicates
+
+        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
+        if missing_features:
+            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
+
+        temp_data = utils.temp_neutral_plot_data(self, neutralize_features)
+        temp_data[main_feature] = self.current_data[main_feature]
+        # call plotting function
+        utils.plot_data_neutral(
+            temp_data,
+            main_feature,
+            nbins=nbins,
+            type_bins=type_bins,
+            type_plot=type_plot,
+        )

@@ -635,3 +635,130 @@ def temp_plot_compare_data(aprofs_obj_self, aprofs_obj, feature: str) -> pd.Data
     temp["shap_prob_model"] = 1 / (1 + np.exp(-temp["shap_model"]))
 
     return temp
+
+
+def plot_data_neutral(  # pylint: disable=too-many-arguments
+    data: pd.DataFrame,
+    feature: str,
+    nbins: int = 20,
+    type_bins: str = "qcut",
+    type_plot: str = "prob",
+) -> None:
+    """
+    Plot data based on the provided neutralized DataFrame and features.
+
+    Args:
+        data (pd.DataFrame): The DataFrame containing the neutralize shap data.
+        feature (str): The main feature to plot on the x-axis.
+        nbins (int, optional): The number of bins. Defaults to 20.
+        type_bins (str, optional): The type of binning. Defaults to "qcut".
+        type_plot (str, optional): The type of plot. Defaults to "prob".
+
+    Returns:
+        None
+
+    Examples:
+        >>> temp = pd.DataFrame(...)
+        >>> plot_data_neutral(temp, "main_feature", other_features=["feature_1", "feature_2"], nbins=10, type_bins="cut", type_plot="raw")
+    """
+
+    if data[feature].unique().shape[0] < 25:
+        data["bins"] = data[feature].astype(str)
+    elif type_bins == "cut":
+        data["bins"] = pd.cut(data[feature], bins=nbins)
+    elif type_bins == "qcut":
+        data["bins"] = pd.qcut(data[feature], q=nbins)
+    else:
+        print("Invalid type_bins value")
+
+    # Calculate the means for each bin
+    means = data.groupby("bins", observed=True)["target"].mean()
+
+    if type_plot == "raw":
+        means_shap_others = data.groupby("bins", observed=True)["shap_other"].mean()
+        means_shap_model = data.groupby("bins", observed=True)["shap_model"].mean()
+    else:
+        means_shap_others = data.groupby("bins", observed=True)["shap_prob_other"].mean()
+        means_shap_model = data.groupby("bins", observed=True)["shap_prob_model"].mean()
+
+    # Calculate the counts for each bin
+    counts = data["bins"].value_counts(normalize=True).sort_index()
+
+    # Create a figure
+    fig = go.Figure()
+
+    # Add bar plot for counts on the primary y-axis
+    fig.add_trace(go.Bar(x=counts.index.astype(str), y=counts, name="Data", yaxis="y", marker_color="lightgray"))
+
+    # Add line plots on the secondary y-axis
+    fig.add_trace(go.Scatter(x=means.index.astype(str), y=means, mode="lines", name="Observed", yaxis="y2"))
+
+    fig.add_trace(
+        go.Scatter(
+            x=means_shap_others.index.astype(str),
+            y=means_shap_others,
+            mode="lines",
+            name="Neutralized shaps",
+            yaxis="y2",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=means_shap_model.index.astype(str),
+            y=means_shap_model,
+            mode="lines",
+            name="Original Model shaps",
+            yaxis="y2",
+        )
+    )
+
+    # Update layout to include a secondary y-axis
+    fig.update_layout(
+        yaxis={"title": "Counts", "side": "left", "tickformat": ".0%"},
+        yaxis2={"title": "Avg.", "side": "right", "overlaying": "y"},
+    )
+
+    fig.show()
+
+
+def temp_neutral_plot_data(aprofs_obj, features: List[str]) -> pd.DataFrame:
+    """
+    Generate a temporary DataFrame for plotting purposes.
+
+    Args:
+        aprofs_obj (Aprofs Object): An instance of the Aprofs class.
+        features (List[str]): A list of feature names that will be neutralized. The shapley values for this will be just the average values. This way the break the segmentation of the feature, maintaining the global effect of all the others.
+
+    Returns:
+        pd.DataFrame: The temporary DataFrame.
+
+    Examples:
+        >>> aprofs_obj = Aprofs Object(...)
+        >>> features = ['feature_1', 'feature_2']
+        >>> temp = temp_neutral_plot_data(aprofs_obj, features)
+        >>> print(temp.head())
+    """
+    if not isinstance(features, list):
+        features = [features]
+
+    temp = pd.DataFrame(
+        {
+            "target": aprofs_obj.target_column,
+        }
+    )
+
+    for feat in features:
+        temp[feat] = aprofs_obj.current_data[feat].values  # adding features to data
+
+    temp["shap_other"] = (
+        aprofs_obj.shap_mean
+        + aprofs_obj.shap_values[[col for col in aprofs_obj.shap_values.columns if col not in features]].sum(axis=1)
+        + aprofs_obj.shap_values[features]
+        .sum(axis=1)
+        .mean()  # sums the columns of the features and calculate the average value
+    )
+    temp["shap_prob_other"] = 1 / (1 + np.exp(-temp["shap_other"]))
+    temp["shap_model"] = aprofs_obj.shap_mean + aprofs_obj.shap_values.sum(axis=1)
+    temp["shap_prob_model"] = 1 / (1 + np.exp(-temp["shap_model"]))
+
+    return temp

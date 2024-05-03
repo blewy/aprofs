@@ -455,7 +455,7 @@ def plot_data(  # pylint: disable=too-many-arguments
         yaxis={"title": "Counts", "side": "left", "tickformat": ".0%"},
         yaxis2={"title": "Avg.", "side": "right", "overlaying": "y"},
     )
-
+    fig.update_xaxes(title_text=feature)
     fig.show()
 
 
@@ -591,7 +591,7 @@ def plot_data_compare(  # pylint: disable=too-many-arguments
         yaxis={"title": "Counts", "side": "left", "tickformat": ".0%"},
         yaxis2={"title": "Avg.", "side": "right", "overlaying": "y"},
     )
-
+    fig.update_xaxes(title_text=feature)
     fig.show()
 
 
@@ -717,6 +717,8 @@ def plot_data_neutral(  # pylint: disable=too-many-arguments
         yaxis={"title": "Counts", "side": "left", "tickformat": ".0%"},
         yaxis2={"title": "Avg.", "side": "right", "overlaying": "y"},
     )
+    # Add title to x-axis
+    fig.update_xaxes(title_text=feature)
 
     fig.show()
 

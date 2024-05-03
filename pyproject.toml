@@ -21,7 +21,7 @@ packages = ["aprofs"]
 
 [tool.poetry]
 name = "aprofs"
-version = "0.0.2"
+version = "0.0.3"
 description = "\"Package aprofs serves the purpose of streaming the feature selection using aproximate preditions\""
 authors = ["Filipe Santos"]
 license = "MIT"

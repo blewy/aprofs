@@ -57,7 +57,7 @@ class Aprofs:
             )
         )
 
-    def _calculate_shaps(self, model: Any, type_model="tree") -> None:
+    def calculate_shaps(self, model: Any, type_model="tree") -> None:
         """
         Calculate the SHAP values for the given model.
 
@@ -73,7 +73,7 @@ class Aprofs:
         self.shap_values = pd.DataFrame(shap_values, index=self.current_data.index, columns=self.current_data.columns)
         self.shap_mean = shap_mean
 
-    def _get_feature_performance(self, features: List[str]) -> float:
+    def get_feature_performance(self, features: List[str]) -> float:
         """
         Calculate the performance of the features based on the SHAP values.
 
@@ -114,7 +114,7 @@ class Aprofs:
         best_list = []
         all_combinations = list(utils.generate_all_combinations(features))
         for comb in tqdm(all_combinations, desc=f"Processing {len(all_combinations)} combinations"):
-            auc = self._get_feature_performance(list(comb))
+            auc = self.get_feature_performance(list(comb))
             if auc > best_auc:
                 best_auc = auc
                 best_list = comb
@@ -177,7 +177,7 @@ class Aprofs:
             raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
 
         p_values = []
-        auc_threshold = self._get_feature_performance(self.shap_values.columns)
+        auc_threshold = self.get_feature_performance(self.shap_values.columns)
         for feature in tqdm(features):
             samples = [
                 utils.random_sort_shaps(self.shap_values, self.shap_mean, feature, self.target_column, self.link)

@@ -136,7 +136,7 @@ def test__shap_calculation(features):
     model_ = tutorial_model(features)
     # crete object
     aprofs_objct = Aprofs(x_data, y_data)
-    aprofs_objct.calculate_shaps(model_)
+    aprofs_objct._calculate_shaps(model_)
     assert not aprofs_objct.shap_values.empty
     assert aprofs_objct.shap_mean is not None
     assert not aprofs_objct.shap_mean == 0
@@ -149,8 +149,8 @@ def test__get_performance(features):
     model_ = tutorial_model(features)
     # crete object
     aprofs_objct = Aprofs(x_data, y_data)
-    aprofs_objct.calculate_shaps(model_)
-    perf = aprofs_objct.get_feature_performance(features)
+    aprofs_objct._calculate_shaps(model_)
+    perf = aprofs_objct._get_feature_performance(features)
     assert perf is not None
     assert not perf == 0
 
@@ -162,7 +162,7 @@ def test__get_brute_features(features):
     model_ = tutorial_model(features)
     # crete object
     aprofs_objct = Aprofs(x_data, y_data)
-    aprofs_objct.calculate_shaps(model_)
+    aprofs_objct._calculate_shaps(model_)
     test_features = aprofs_objct.brute_force_selection(features)
     assert test_features, "test_features is not empty"
 
@@ -174,6 +174,6 @@ def test__get_gready_features(features):
     model_ = tutorial_model(features)
     # crete object
     aprofs_objct = Aprofs(x_data, y_data)
-    aprofs_objct.calculate_shaps(model_)
+    aprofs_objct._calculate_shaps(model_)
     test_features = aprofs_objct.gready_forward_selection(features)
     assert test_features, "test_features is not empty"

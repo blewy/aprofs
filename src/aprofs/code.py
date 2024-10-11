@@ -15,10 +15,14 @@ from typing import (
 )
 
 import pandas as pd
-from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
 
 from aprofs import utils
+
+from .models import (
+    ClassificationLogisticLink,
+    LinkModels,
+)
 
 
 class Aprofs:
@@ -39,17 +43,16 @@ class Aprofs:
 
     """
 
-    def __init__(self, current_data, target_column, link="logistic"):
+    def __init__(self, current_data, target_column, link_model: LinkModels):
         self.current_data = current_data
         self.target_column = target_column
-        self.link = utils.link_function(link)
-        self.link_srt = link
-        self.shap_mean = None
-        self.shap_values = None
+        self.link_model = ClassificationLogisticLink() if link_model is None else link_model
+        self.shap_mean: float = None
+        self.shap_values: pd.DataFrame = None
 
     def __repr__(self):
         return (
-            f"Aprofs(current_data shape ={self.current_data.shape}, target_column ={self.target_column.unique()}, link={self.link_srt})"
+            f"Aprofs(current_data shape ={self.current_data.shape}, target_column ={self.target_column.unique()}"
             + (
                 f", shap_mean={self.shap_mean}, shap_values.shape={self.shap_values.shape}"
                 if self.shap_mean is not None
@@ -89,8 +92,8 @@ class Aprofs:
         missing_features = [feature for feature in features if feature not in self.shap_values.columns]
         if missing_features:
             raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
-        return roc_auc_score(
-            self.target_column, utils.calculate_row_sum(self.shap_values, self.shap_mean, features, self.link)
+        return self.link_model.performance_fit(
+            self.target_column, utils.calculate_row_sum(self.shap_values, self.shap_mean, features, self.link_model)
         )
 
     def brute_force_selection(self, features: List[str]) -> List[str]:
@@ -144,7 +147,7 @@ class Aprofs:
         best_auc = 0.0
         while len(candidate_list) > 0:
             best_feature_, best_auc_ = utils.best_feature(
-                self.shap_values, self.shap_mean, self.link, self.target_column, best_list, candidate_list
+                self.shap_values, self.shap_mean, self.link_model, self.target_column, best_list, candidate_list
             )
             candidate_list.remove(best_feature_)
 
@@ -180,7 +183,7 @@ class Aprofs:
         auc_threshold = self.get_feature_performance(self.shap_values.columns)
         for feature in tqdm(features):
             samples = [
-                utils.random_sort_shaps(self.shap_values, self.shap_mean, feature, self.target_column, self.link)
+                utils.random_sort_shaps(self.shap_values, self.shap_mean, feature, self.target_column, self.link_model)
                 for _ in range(suffle_size)
             ]
             count = sum(sample > auc_threshold for sample in samples)

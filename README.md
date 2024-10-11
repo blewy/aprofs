@@ -20,7 +20,7 @@ Please look at the package website for more resources: [Aprofs Documentation](ht
 You can install aprofs via pip:
 
 ```bash
-pip install aprofs==0.0.2
+pip install aprofs==0.0.3
 ```
 
 ## Usage

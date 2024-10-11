@@ -17,7 +17,7 @@ pip install git+https://github.com/blewy/aprofs
 or from, **pypy testing** like this:
 
 ```bash
-pip install aprofs==0.0.1
+pip install aprofs==0.0.4
 ```
 
 The idea of the package is to help you select your features, getting a simpler model, then understand your features

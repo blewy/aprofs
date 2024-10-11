@@ -5,7 +5,6 @@ the core functions are used to calculate the SHAP values and expected average SH
 
 from itertools import combinations
 from typing import (
-    Any,
     Callable,
     List,
     Optional,
@@ -22,58 +21,11 @@ from shap import (
 )
 from sklearn.metrics import roc_auc_score
 
-
-def link_function(link: str) -> Callable:
-    """
-    Returns a link function based on the specified link type.
-
-    Args:
-        link (str): The type of link function to use. Must be one of the following:
-            - 'logistic': Returns the logistic function 1 / (1 + exp(-shap_sum)).
-            - 'logarithmic': Returns the exponential function exp(shap_sum).
-            - 'identity': Returns the input shap_sum as is.
-
-    Returns:
-        function: The link function corresponding to the specified link type.
-
-    Raises:
-        ValueError: If an invalid link type is specified.
-
-    Examples:
-        >>> link_func = link_function('logistic')
-        >>> link_func(0)
-        0.5
-
-        >>> link_func = link_function('logarithmic')
-        >>> link_func(1)
-        2.718281828459045
-
-        >>> link_func = link_function('identity')
-        >>> link_func(-2)
-        -2
-    """
-    if link.lower() == "logistic":
-
-        def def_link(shap_sum):
-            return 1 / (1 + np.exp(-shap_sum))
-
-    elif link.lower() == "logarithmic":
-
-        def def_link(shap_sum):
-            return np.exp(shap_sum)
-
-    elif link.lower() == "identity":
-
-        def def_link(shap_sum):
-            return shap_sum
-
-    else:
-        raise ValueError("Invalid link defined. Must be 'logistic', 'logarithmic' or 'identity'.")
-    return def_link
+from .models import LinkModels
 
 
 def calculate_row_sum(
-    data: pd.DataFrame, mean_value: float, columns: List[str], link_function: Any
+    data: pd.DataFrame, mean_value: float, columns: List[str], link_model: LinkModels
 ) -> Union[float, pd.Series]:
     """
     Calculates the row sum of specified columns in a Shapley values DataFrame and applies a link function to the result.
@@ -82,7 +34,7 @@ def calculate_row_sum(
         data (pd.DataFrame): The input DataFrame with shapley values.
         mean_value (float): The mean shapley value to be added to the row sum.
         columns (List[str]): The list of column names to be summed.
-        link_function (callable): The link function to be applied to the result.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
 
     Returns:
         Union[float, pd.Series]: The result of applying the link function to the row sum.
@@ -96,17 +48,17 @@ def calculate_row_sum(
         >>> calculate_row_sum(data, mean_value, columns, link_function)
         225.0
     """
-    return link_function(mean_value + data[columns].sum(axis=1))
+    return link_model.link_calculate(mean_value + data[columns].sum(axis=1))
 
 
-def calculate_all_row_sum(data: pd.DataFrame, mean_value: float, link_function: Callable) -> Union[float, pd.Series]:
+def calculate_all_row_sum(data: pd.DataFrame, mean_value: float, link_model: LinkModels) -> Union[float, pd.Series]:
     """
     Calculates the row sum of **all columns** in a Shapley values DataFrame and applies a link function to the result.
 
     Args:
         data (pd.DataFrame): The input Shapley values DataFrame.
         mean_value (float): The mean shapley value to be added to the row sum.
-        link_function (callable): The link function to be applied to the result.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
 
     Returns:
         Union[float, pd.Series]: The result of applying the link function to the row sum.
@@ -119,18 +71,24 @@ def calculate_all_row_sum(data: pd.DataFrame, mean_value: float, link_function: 
         >>> calculate_all_row_sum(data, mean_value, link_function)
         225.0
     """
-    return link_function(mean_value + data.sum(axis=1))
+    return link_model.link_calculate(mean_value + data.sum(axis=1))
 
 
-def performance_fit(shaps_values, shap_expected_value, features, y_valid, link_function):
-    aprox_preds = calculate_row_sum(shaps_values, features, shap_expected_value, link_function)
-    return roc_auc_score(y_valid, aprox_preds)
+def performance_fit(
+    shaps_values: pd.DataFrame,
+    shap_expected_value: float,
+    features: List[str],
+    y_valid: pd.Series,
+    link_model: LinkModels,
+) -> float:
+    aprox_preds = calculate_row_sum(shaps_values, shap_expected_value, features, link_model)
+    return link_model.performance_fit(y_valid, aprox_preds)
 
 
 def best_feature(  # pylint: disable=too-many-arguments
     shaps_values: pd.DataFrame,
     shap_expected_values: float,
-    link_function: Callable,
+    link_model: LinkModels,
     y_target: pd.Series,
     current_list: List[str],
     candidate_list: List[str],
@@ -141,7 +99,7 @@ def best_feature(  # pylint: disable=too-many-arguments
     Args:
         shaps_values (DataFrame): A DataFrame containing SHAP values for each feature.
         shap_expected_values (Series): A Series containing the expected SHAP values.
-        link_function (function): A function to link the SHAP values and expected values.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
         y_target (Series): The target variable for the AUC score calculation.
         current_list (list): The current list of features.
         candidate_list (list): The list of candidate features to consider adding.
@@ -160,7 +118,7 @@ def best_feature(  # pylint: disable=too-many-arguments
     best_auc: float = 0
     for feature in candidate_list:
         current_list.append(feature)
-        aprox_preds = calculate_row_sum(shaps_values, shap_expected_values, current_list, link_function)
+        aprox_preds = calculate_row_sum(shaps_values, shap_expected_values, current_list, link_model)
         auc = roc_auc_score(y_target, aprox_preds)
         if auc > best_auc:
             best_auc = auc
@@ -213,6 +171,9 @@ def get_shap_values(data: pd.DataFrame, model: Callable, type_model="tree") -> T
         shap_valid = shap_explainer.shap_values(data)
         shap_expected_value = shap_explainer.expected_value
 
+    if isinstance(shap_valid, list):
+        shap_valid = np.concatenate(shap_valid, axis=1)
+
     return shap_valid, shap_expected_value
 
 
@@ -238,7 +199,7 @@ def random_sort_shaps(
     shap_expected_value: float,
     feature_name: str,
     y_target: Union[pd.Series, np.ndarray],
-    link_function: Callable,
+    link_model: LinkModels,
 ) -> float:
     """
     Randomly shuffles the values of a specific feature in the SHAP values DataFrame,
@@ -249,7 +210,7 @@ def random_sort_shaps(
         shap_expected_value (float): The expected SHAP value.
         feature_name (str): The name of the feature to shuffle.
         y_target (Union[pd.Series, np.ndarray]): The target variable.
-        link_function (callable): The link function to be applied to the row sum.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
 
     Returns:
         float: The ROC AUC score.
@@ -284,9 +245,9 @@ def random_sort_shaps(
     new_shap_table.reset_index(inplace=True, drop=True)
 
     new_shap_table[feature_name] = shaps_values_shuffled[feature_name]
-    approx_pred_valid = calculate_all_row_sum(new_shap_table, shap_expected_value, link_function)
+    approx_pred_valid = calculate_all_row_sum(new_shap_table, shap_expected_value, link_model)
 
-    return roc_auc_score(y_target, approx_pred_valid)
+    return link_model.performance_fit(y_target, approx_pred_valid)
 
 
 def random_sort_shaps_column(  # pylint: disable=too-many-arguments
@@ -294,7 +255,7 @@ def random_sort_shaps_column(  # pylint: disable=too-many-arguments
     shap_mean_value: float,
     target_column: Union[pd.Series, np.ndarray],
     feature: str,
-    link_function: Callable,
+    link_model: LinkModels,
     original: bool = False,
 ) -> float:
     """
@@ -306,7 +267,7 @@ def random_sort_shaps_column(  # pylint: disable=too-many-arguments
         shap_mean_value (float): The mean SHAP value.
         target_column (Union[pd.Series, np.ndarray]): The target variable.
         feature (str): The name of the feature to shuffle.
-        link_function (callable): The link function to be applied to the row sum.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
         original (bool, optional): Whether to use the original feature values or shuffled values. Defaults to False.
 
     Returns:
@@ -353,9 +314,9 @@ def random_sort_shaps_column(  # pylint: disable=too-many-arguments
     else:
         new_shap_table[feature] = shaps_values_shuffled[feature]
 
-    approx_pred_valid = calculate_all_row_sum(new_shap_table, shap_mean_value, link_function)
+    approx_pred_valid = calculate_all_row_sum(new_shap_table, shap_mean_value, link_model)
 
-    return roc_auc_score(target_column, approx_pred_valid)
+    return link_model.performance_fit(target_column, approx_pred_valid)
 
 
 def plot_data(  # pylint: disable=too-many-arguments

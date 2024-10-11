@@ -15,10 +15,14 @@ from typing import (
 )
 
 import pandas as pd
-from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
 
 from aprofs import utils
+
+from .models import (
+    ClassificationLogisticLink,
+    LinkModels,
+)
 
 
 class Aprofs:
@@ -39,17 +43,16 @@ class Aprofs:
 
     """
 
-    def __init__(self, current_data, target_column, link="logistic"):
+    def __init__(self, current_data, target_column, link_model: LinkModels):
         self.current_data = current_data
         self.target_column = target_column
-        self.link = utils.link_function(link)
-        self.link_srt = link
-        self.shap_mean = None
-        self.shap_values = None
+        self.link_model = ClassificationLogisticLink() if link_model is None else link_model
+        self.shap_mean: float = None
+        self.shap_values: pd.DataFrame = None
 
     def __repr__(self):
         return (
-            f"Aprofs(current_data shape ={self.current_data.shape}, target_column ={self.target_column.unique()}, link={self.link_srt})"
+            f"Aprofs(current_data shape ={self.current_data.shape}, target_column ={self.target_column.unique()}"
             + (
                 f", shap_mean={self.shap_mean}, shap_values.shape={self.shap_values.shape}"
                 if self.shap_mean is not None
@@ -89,8 +92,8 @@ class Aprofs:
         missing_features = [feature for feature in features if feature not in self.shap_values.columns]
         if missing_features:
             raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
-        return roc_auc_score(
-            self.target_column, utils.calculate_row_sum(self.shap_values, self.shap_mean, features, self.link)
+        return self.link_model.performance_fit(
+            self.target_column, utils.calculate_row_sum(self.shap_values, self.shap_mean, features, self.link_model)
         )
 
     def brute_force_selection(self, features: List[str]) -> List[str]:
@@ -110,15 +113,15 @@ class Aprofs:
         if missing_features:
             raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
 
-        best_auc = 0.0
+        best_performance = 0.0
         best_list = []
         all_combinations = list(utils.generate_all_combinations(features))
         for comb in tqdm(all_combinations, desc=f"Processing {len(all_combinations)} combinations"):
-            auc = self.get_feature_performance(list(comb))
-            if auc > best_auc:
-                best_auc = auc
+            current_performance = self.get_feature_performance(list(comb))
+            if current_performance > best_performance:
+                best_performance = current_performance
                 best_list = comb
-        print(f"the best list is {best_list} with auc {best_auc}")
+        print(f"the best list is {best_list} with performance {best_performance}")
         return list(best_list)
 
     def gready_forward_selection(self, features: List[str], greediness: float = 0.001) -> List[str]:
@@ -140,21 +143,21 @@ class Aprofs:
 
         best_list: List = []
         candidate_list: List[str] = features.copy()
-        aproximate_auc: List[float] = []
-        best_auc = 0.0
+        aproximate_performance: List[float] = []
+        best_performance = 0.0
         while len(candidate_list) > 0:
-            best_feature_, best_auc_ = utils.best_feature(
-                self.shap_values, self.shap_mean, self.link, self.target_column, best_list, candidate_list
+            best_feature_, best_performance_ = utils.best_feature(
+                self.shap_values, self.shap_mean, self.link_model, self.target_column, best_list, candidate_list
             )
             candidate_list.remove(best_feature_)
 
-            if best_auc > best_auc_ * (1 + greediness):
+            if best_performance > best_performance_ * (1 + greediness):
                 print(f"The feature {best_feature_} wont be added")
             else:
-                best_auc = best_auc_
+                best_performance = best_performance_
                 best_list.append(best_feature_)
-                print(f"the best feature to add is {best_feature_} with auc {best_auc_}")
-                aproximate_auc.append(best_auc_)
+                print(f"the best feature to add is {best_feature_} with performance {best_performance_}")
+                aproximate_performance.append(best_performance_)
 
         return best_list
 
@@ -177,13 +180,13 @@ class Aprofs:
             raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
 
         p_values = []
-        auc_threshold = self.get_feature_performance(self.shap_values.columns)
+        performance_threshold = self.get_feature_performance(self.shap_values.columns)
         for feature in tqdm(features):
             samples = [
-                utils.random_sort_shaps(self.shap_values, self.shap_mean, feature, self.target_column, self.link)
+                utils.random_sort_shaps(self.shap_values, self.shap_mean, feature, self.target_column, self.link_model)
                 for _ in range(suffle_size)
             ]
-            count = sum(sample > auc_threshold for sample in samples)
+            count = sum(sample > performance_threshold for sample in samples)
             p_values.append(count / suffle_size)
 
         return pd.DataFrame({"Feature": features, "p-value_shap": p_values})

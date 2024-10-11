@@ -10,72 +10,48 @@ from lightgbm import LGBMClassifier
 from sklearn.model_selection import train_test_split
 
 from aprofs.code import Aprofs
+from aprofs.models import ClassificationLogisticLink
 from aprofs.utils import (
     calculate_all_row_sum,
     calculate_row_sum,
-    link_function,
 )
 
 data_dir = Path(__file__).parent.parent / "docs"  # Navigate up to the project root
 data_path = data_dir / "insurance.csv"
 
 
-@pytest.mark.parametrize(
-    "link, input_value, expected_output",
-    [
-        ("logistic", 0, 0.5),
-        ("logistic", 1, 1 / (1 + np.exp(-1))),
-        ("logarithmic", 0, 1),
-        ("logarithmic", 1, np.exp(1)),
-        ("identity", -2, -2),
-        ("identity", 0, 0),
-    ],
-)
-def test__link_function(link, input_value, expected_output):
-    func = link_function(link)
-    assert np.isclose(func(input_value), expected_output, atol=1e-6)
-
-
-def test__link_function_invalid_link():
-    with pytest.raises(ValueError):
-        link_function("invalid_link")
+@pytest.fixture
+def link_model():
+    return ClassificationLogisticLink()
 
 
 @pytest.mark.parametrize(
-    "data, features, expected_value, link, expected_output",
+    "data, features, expected_value, expected_output",
     [
-        (pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [3, 4]}), ["a", "b"], 0, "identity", pd.Series([4, 6])),
-        (pd.DataFrame({"a": [1, 2], "b": [3, 4]}), ["a", "b"], 1, "identity", pd.Series([5, 7])),
         (
             pd.DataFrame({"a": [1, 2], "b": [3, 4], "s": [3, 4]}),
             ["a", "b"],
             1,
-            "logistic",
             pd.Series([1 / (1 + np.exp(-5)), 1 / (1 + np.exp(-7))]),
         ),
     ],
 )
-def test__calculate_row_sum(data, features, expected_value, link, expected_output):
-    assert calculate_row_sum(data, expected_value, columns=features, link_function=link_function(link)).equals(
-        expected_output
-    )
+def test__calculate_row_sum(data, features, expected_value, link_model, expected_output):
+    assert calculate_row_sum(data, expected_value, columns=features, link_model=link_model).equals(expected_output)
 
 
 @pytest.mark.parametrize(
-    "data, expected_value, link, expected_output",
+    "data, expected_value, expected_output",
     [
-        (pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [3, 4]}), 0, "identity", pd.Series([7, 10])),
-        (pd.DataFrame({"a": [1, 2], "b": [3, 4]}), 1, "identity", pd.Series([5, 7])),
         (
             pd.DataFrame({"a": [1, 2], "b": [3, 4], "s": [2, 5]}),
             1,
-            "logistic",
             pd.Series([1 / (1 + np.exp(-7)), 1 / (1 + np.exp(-12))]),
         ),
     ],
 )
-def test__calculate_all_row_sum(data, expected_value, link, expected_output):
-    assert calculate_all_row_sum(data, expected_value, link_function=link_function(link)).equals(expected_output)
+def test__calculate_all_row_sum(data, expected_value, link_model, expected_output):
+    assert calculate_all_row_sum(data, expected_value, link_model=link_model).equals(expected_output)
 
 
 @pytest.fixture
@@ -124,7 +100,7 @@ def tutorial_model(features):
 
 def test__object_creation(features):
     _, x_data, _, y_data = tutorial_data(features)
-    aprofs_objct = Aprofs(x_data, y_data)
+    aprofs_objct = Aprofs(x_data, y_data, link_model=None)
     assert not aprofs_objct.current_data.empty
     assert not aprofs_objct.target_column.empty
 
@@ -135,7 +111,7 @@ def test__shap_calculation(features):
     # get model
     model_ = tutorial_model(features)
     # crete object
-    aprofs_objct = Aprofs(x_data, y_data)
+    aprofs_objct = Aprofs(x_data, y_data, link_model=None)
     aprofs_objct.calculate_shaps(model_)
     assert not aprofs_objct.shap_values.empty
     assert aprofs_objct.shap_mean is not None
@@ -148,7 +124,7 @@ def test__get_performance(features):
     # get model
     model_ = tutorial_model(features)
     # crete object
-    aprofs_objct = Aprofs(x_data, y_data)
+    aprofs_objct = Aprofs(x_data, y_data, link_model=None)
     aprofs_objct.calculate_shaps(model_)
     perf = aprofs_objct.get_feature_performance(features)
     assert perf is not None
@@ -161,7 +137,7 @@ def test__get_brute_features(features):
     # get model
     model_ = tutorial_model(features)
     # crete object
-    aprofs_objct = Aprofs(x_data, y_data)
+    aprofs_objct = Aprofs(x_data, y_data, link_model=None)
     aprofs_objct.calculate_shaps(model_)
     test_features = aprofs_objct.brute_force_selection(features)
     assert test_features, "test_features is not empty"
@@ -173,7 +149,7 @@ def test__get_gready_features(features):
     # get model
     model_ = tutorial_model(features)
     # crete object
-    aprofs_objct = Aprofs(x_data, y_data)
+    aprofs_objct = Aprofs(x_data, y_data, link_model=None)
     aprofs_objct.calculate_shaps(model_)
     test_features = aprofs_objct.gready_forward_selection(features)
     assert test_features, "test_features is not empty"

@@ -171,6 +171,9 @@ def get_shap_values(data: pd.DataFrame, model: Callable, type_model="tree") -> T
         shap_valid = shap_explainer.shap_values(data)
         shap_expected_value = shap_explainer.expected_value
 
+    if isinstance(shap_valid, list):
+        shap_valid = np.concatenate(shap_valid, axis=1)
+
     return shap_valid, shap_expected_value
 
 

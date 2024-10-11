@@ -24,55 +24,6 @@ from sklearn.metrics import roc_auc_score
 from .models import LinkModels
 
 
-def link_function(link: str) -> Callable:
-    """
-    Returns a link function based on the specified link type.
-
-    Args:
-        link (str): The type of link function to use. Must be one of the following:
-            - 'logistic': Returns the logistic function 1 / (1 + exp(-shap_sum)).
-            - 'logarithmic': Returns the exponential function exp(shap_sum).
-            - 'identity': Returns the input shap_sum as is.
-
-    Returns:
-        function: The link function corresponding to the specified link type.
-
-    Raises:
-        ValueError: If an invalid link type is specified.
-
-    Examples:
-        >>> link_func = link_function('logistic')
-        >>> link_func(0)
-        0.5
-
-        >>> link_func = link_function('logarithmic')
-        >>> link_func(1)
-        2.718281828459045
-
-        >>> link_func = link_function('identity')
-        >>> link_func(-2)
-        -2
-    """
-    if link.lower() == "logistic":
-
-        def def_link(shap_sum):
-            return 1 / (1 + np.exp(-shap_sum))
-
-    elif link.lower() == "logarithmic":
-
-        def def_link(shap_sum):
-            return np.exp(shap_sum)
-
-    elif link.lower() == "identity":
-
-        def def_link(shap_sum):
-            return shap_sum
-
-    else:
-        raise ValueError("Invalid link defined. Must be 'logistic', 'logarithmic' or 'identity'.")
-    return def_link
-
-
 def calculate_row_sum(
     data: pd.DataFrame, mean_value: float, columns: List[str], link_model: LinkModels
 ) -> Union[float, pd.Series]:

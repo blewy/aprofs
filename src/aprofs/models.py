@@ -3,14 +3,6 @@ this wasy we can extend this class to implement new models
 to calculate the use with the aprofs class"""
 
 import abc
-import inspect
-import json
-import os
-from typing import (
-    Optional,
-    Tuple,
-    Union,
-)
 
 import numpy as np
 from sklearn.metrics import (
@@ -21,8 +13,11 @@ from sklearn.metrics import (
 
 # Model Interface
 class LinkModels(metaclass=abc.ABCMeta):
-    def __init__(self) -> None:
-        pass
+    """This class implements the interface for the link models
+
+    Args:
+        metaclass (_type_, optional): _description_. Defaults to abc.ABCMeta.
+    """
 
     @abc.abstractmethod
     def performance_fit(self, target, prediction):
@@ -33,11 +28,13 @@ class LinkModels(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def inv_link_calculate(self, inv_prediction):
+    def inv_link_calculate(self, prediction):
         pass
 
 
 class RegressionLogLink(LinkModels):
+    """This class implements the link model for regression with logarithmic link"""
+
     def __init__(self) -> None:
         super().__init__()
         self.type_model = "regression"
@@ -58,6 +55,12 @@ class RegressionLogLink(LinkModels):
 
 
 class ClassificationLogisticLink(LinkModels):
+    """This class implements the link model for classification with logistic link
+
+    Args:
+        LinkModels (_type_): _description_
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.type_model = "classification"

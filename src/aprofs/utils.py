@@ -34,7 +34,7 @@ def calculate_row_sum(
         data (pd.DataFrame): The input DataFrame with shapley values.
         mean_value (float): The mean shapley value to be added to the row sum.
         columns (List[str]): The list of column names to be summed.
-        link_function (callable): The link function to be applied to the result.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
 
     Returns:
         Union[float, pd.Series]: The result of applying the link function to the row sum.
@@ -58,7 +58,7 @@ def calculate_all_row_sum(data: pd.DataFrame, mean_value: float, link_model: Lin
     Args:
         data (pd.DataFrame): The input Shapley values DataFrame.
         mean_value (float): The mean shapley value to be added to the row sum.
-        link_function (callable): The link function to be applied to the result.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
 
     Returns:
         Union[float, pd.Series]: The result of applying the link function to the row sum.
@@ -99,7 +99,7 @@ def best_feature(  # pylint: disable=too-many-arguments
     Args:
         shaps_values (DataFrame): A DataFrame containing SHAP values for each feature.
         shap_expected_values (Series): A Series containing the expected SHAP values.
-        link_function (function): A function to link the SHAP values and expected values.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
         y_target (Series): The target variable for the AUC score calculation.
         current_list (list): The current list of features.
         candidate_list (list): The list of candidate features to consider adding.
@@ -210,7 +210,7 @@ def random_sort_shaps(
         shap_expected_value (float): The expected SHAP value.
         feature_name (str): The name of the feature to shuffle.
         y_target (Union[pd.Series, np.ndarray]): The target variable.
-        link_function (callable): The link function to be applied to the row sum.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
 
     Returns:
         float: The ROC AUC score.
@@ -267,7 +267,7 @@ def random_sort_shaps_column(  # pylint: disable=too-many-arguments
         shap_mean_value (float): The mean SHAP value.
         target_column (Union[pd.Series, np.ndarray]): The target variable.
         feature (str): The name of the feature to shuffle.
-        link_function (callable): The link function to be applied to the row sum.
+        link_model (aprofs model object): An object that allows to calculate the performance of the model.
         original (bool, optional): Whether to use the original feature values or shuffled values. Defaults to False.
 
     Returns:

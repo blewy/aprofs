@@ -14,9 +14,13 @@ from sklearn.metrics import (
 # Model Interface
 class LinkModels(metaclass=abc.ABCMeta):
     """This class implements the interface for the link models
+    to be used in the aprofs class
 
-    Args:
-        metaclass (_type_, optional): _description_. Defaults to abc.ABCMeta.
+    Functionality that needs ot be implemented:
+        - performance_fit: calculate the performance of the model
+        - link_calculate: calculate the link function
+        - inv_link_calculate: calculate the inverse link function
+
     """
 
     @abc.abstractmethod
@@ -33,7 +37,7 @@ class LinkModels(metaclass=abc.ABCMeta):
 
 
 class RegressionLogLink(LinkModels):
-    """This class implements the link model for regression with logarithmic link"""
+    """This class implements the interface for regression with logarithmic link"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -54,12 +58,30 @@ class RegressionLogLink(LinkModels):
         return f"{self.__class__.__name__}() with type model {self.type_model} and type link {self.type_link}"
 
 
-class ClassificationLogisticLink(LinkModels):
-    """This class implements the link model for classification with logistic link
+class RegressionIdentityLink(LinkModels):
+    """This class implements the interface for regression with identity link"""
 
-    Args:
-        LinkModels (_type_): _description_
-    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.type_model = "regression"
+        self.type_link = "identity"
+        self.perform = "minimize"
+
+    def performance_fit(self, target, prediction):
+        return np.sqrt(mean_squared_error(target, prediction))
+
+    def link_calculate(self, inv_prediction):
+        return inv_prediction
+
+    def inv_link_calculate(self, prediction):
+        return prediction
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}() with type model {self.type_model} and type link {self.type_link}"
+
+
+class ClassificationLogisticLink(LinkModels):
+    """This class implements the interface for classification with logistic link"""
 
     def __init__(self) -> None:
         super().__init__()

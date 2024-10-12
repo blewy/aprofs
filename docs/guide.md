@@ -22,8 +22,13 @@ A structural detail is that the model will not be saved inside the aprofs object
 
 ```py
 from aprofs import code
+from apros.models import ClassificationLogisticLink
 
-aprofs_obj = code.Aprofs(X_calibration, y_target_calibration, link="logistic")
+# Instantiate the type of model/link that you used for training
+logit_model = ClassificationLogisticLink()
+
+
+aprofs_obj = code.Aprofs(X_calibration, y_target_calibration, link_model=logit_model)
 ```
 
 [!WARNING]  

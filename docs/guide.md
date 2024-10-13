@@ -3,7 +3,7 @@
 ## Get you first aprofs object up
 
 The initial idea of the project was to create a structure that contains all the information needed to use the **shapley values**
-alongside with you calibration data to get the results you need.
+along side with you calibration data to get the results you need.
 
 Once instantiated this object with all the proper inputs, we just need to use the correct methods to get our results.
 
@@ -30,6 +30,50 @@ logit_model = ClassificationLogisticLink()
 
 aprofs_obj = code.Aprofs(X_calibration, y_target_calibration, link_model=logit_model)
 ```
+
+In this example the link logit model its used by AProfs internally to be able to calculate the prediction using the shapley values and the same link function that you model is using.
+The details behind the scenes is the following: the sum of the shapley values are teh raw values obtained before applying the link function of your model, in the case os classification usually its the odds ration.
+Please investigate your model to know what is the link function used if any.
+
+you can extend AProfs to a any link model, you just nee to extend the model class like this:
+
+```py
+from aprofs import code
+from apros.models import LinkModels
+
+class MyModelLink(LinkModels):
+    """This class implements the interface for classification with logistic link"""
+
+    def __init__(self) -> None:
+        super().__init__(type_model="yuur_type_of_model", type_link="typs pf link", perform="maximize")
+        # the type ahd type line are informative, the perform/performance need to be "maximize" or "minimize"
+
+    def performance_fit(self, target: Union[np.ndarray, pd.Series], prediction: Union[np.ndarray, pd.Series]) -> float:
+        return None #you models performance function, need to use (target, prediction)
+
+    def link_calculate(
+        self, inv_prediction: Union[int, float, np.ndarray, pd.Series]
+    ) -> Union[int, float, np.ndarray, pd.Series]:
+        if not isinstance(inv_prediction, (int, float, np.ndarray, pd.Series)):
+            raise ValueError("Invalid input type for link_calculate")
+        return None #you link function goes here
+
+    def inv_link_calculate(
+        self, prediction: Union[int, float, np.ndarray, pd.Series]
+    ) -> Union[int, float, np.ndarray, pd.Series]:
+        return Noneß #you inverse link function goes here
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}() with type model {self.type_model} and type link {self.type_link}"
+
+
+# Instantiate the type of model/link that you used for training
+logit_model = ClassificationLogisticLink()
+
+
+aprofs_obj = code.Aprofs(X_calibration, y_target_calibration, link_model=logit_model)
+```
+
 
 [!WARNING]  
 **At the moment only the **logistic** or **binary** models where tested and develops, more to come in the future and also Only AUC as performance metric is available**

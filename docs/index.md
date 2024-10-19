@@ -14,10 +14,10 @@ You can install it from github like this:
 pip install git+https://github.com/blewy/aprofs
 ```
 
-or from, **pypy testing** like this:
+or from, **pypy production** like this:
 
 ```bash
-pip install aprofs==0.0.4
+pip install aprofs==0.0.5
 ```
 
 The idea of the package is to help you select your features, getting a simpler model, then understand your features

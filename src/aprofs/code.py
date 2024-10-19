@@ -151,13 +151,23 @@ class Aprofs:
             )
             candidate_list.remove(best_feature_)
 
-            if best_performance > best_performance_ * (1 + greediness):
-                print(f"The feature {best_feature_} wont be added")
-            else:
-                best_performance = best_performance_
-                best_list.append(best_feature_)
-                print(f"the best feature to add is {best_feature_} with performance {best_performance_}")
-                aproximate_performance.append(best_performance_)
+            if self.link_model.perform == "maximize":  # maximize metric
+                if best_performance > best_performance_ * (1 + greediness):
+                    print(f"The feature {best_feature_} wont be added")
+                else:
+                    best_performance = best_performance_
+                    best_list.append(best_feature_)
+                    print(f"the best feature to add is {best_feature_} with performance {best_performance_}")
+                    aproximate_performance.append(best_performance_)
+
+            if self.link_model.perform == "minimize":  # minimize metric
+                if best_performance < best_performance_ * (1 - greediness):
+                    print(f"The feature {best_feature_} wont be added")
+                else:
+                    best_performance = best_performance_
+                    best_list.append(best_feature_)
+                    print(f"the best feature to add is {best_feature_} with performance {best_performance_}")
+                    aproximate_performance.append(best_performance_)
 
         return best_list
 

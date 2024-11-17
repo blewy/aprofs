@@ -35,22 +35,20 @@ class Aprofs:
 
     Attributes:
         current_data (pd.DataFrame): The current data.
-        target_column (Series): The target column.
-        link (function): The link function.
-        link_srt (str): The string representation of the link function.
+        target_column (pd.Series): The target column.
+        link_model (LinkModels): The link model.
         shap_mean (float): The mean SHAP value. None if SHAP values have not been calculated.
-        shap_values (DataFrame): The SHAP values. None if SHAP values have not been calculated.
-
+        shap_values (pd.DataFrame): The SHAP values. None if SHAP values have not been calculated.
     """
 
-    def __init__(self, current_data, target_column, link_model: LinkModels):
+    def __init__(self, current_data: pd.DataFrame, target_column: pd.Series, link_model: LinkModels = None):
         self.current_data = current_data
         self.target_column = target_column
         self.link_model = ClassificationLogisticLink() if link_model is None else link_model
         self.shap_mean: float = None
         self.shap_values: pd.DataFrame = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"Aprofs(current_data shape ={self.current_data.shape}, target_column ={self.target_column.unique()}"
             + (
@@ -60,14 +58,13 @@ class Aprofs:
             )
         )
 
-    def calculate_shaps(self, model: Any, type_model="tree") -> None:
+    def calculate_shaps(self, model: Any, type_model: str = "tree") -> None:
         """
         Calculate the SHAP values for the given model.
 
         Parameters:
             model (Any): The trained model for which to calculate the SHAP values.
-            type_model (str): type of model: tree based or other. If "tree" then TreeExplainer will be use, otherwise a general explainer from the SHAP package is used. Defaults to 'tree'.
-
+            type_model (str): Type of model: tree-based or other. If "tree", TreeExplainer will be used; otherwise, a general explainer from the SHAP package is used. Defaults to 'tree'.
 
         Returns:
             None
@@ -87,11 +84,9 @@ class Aprofs:
             float: The performance of the features based on the SHAP values.
 
         Raises:
-            ValueError: If an any feature is missing in the SHAP values.
+            ValueError: If any feature is missing in the SHAP values.
         """
-        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
-        if missing_features:
-            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
+        self._check_missing_features(features)
         return self.link_model.performance_fit(
             self.target_column, utils.calculate_row_sum(self.shap_values, self.shap_mean, features, self.link_model)
         )
@@ -107,11 +102,9 @@ class Aprofs:
             List[str]: The best list of features with the highest performance.
 
         Raises:
-            ValueError: If an any feature is missing in the SHAP values.
+            ValueError: If any feature is missing in the SHAP values.
         """
-        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
-        if missing_features:
-            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
+        self._check_missing_features(features)
 
         best_performance = 0.0
         best_list = []
@@ -121,31 +114,30 @@ class Aprofs:
             if current_performance > best_performance:
                 best_performance = current_performance
                 best_list = comb
-        print(f"the best list is {best_list} with performance {best_performance}")
+        print(f"The best list is {best_list} with performance {best_performance}")
         return list(best_list)
 
     def gready_forward_selection(self, features: List[str], greediness: float = 0.001) -> List[str]:
         """
-        Perform gready forward feature selection by evaluating the performance of all possible combinations of features.
+        Perform greedy forward feature selection by evaluating the performance of all possible combinations of features.
 
         Parameters:
             features (List[str]): The list of features to consider for feature selection.
-            greediness (float): The greediness factor, how much better needs to be the performance to add the feature. Default is 0.001.
+            greediness (float): The greediness factor, how much better the performance needs to be to add the feature. Default is 0.001.
+
         Returns:
             List[str]: The best list of features with the highest performance.
 
         Raises:
-            ValueError: If an any feature is missing in the SHAP values.
+            ValueError: If any feature is missing in the SHAP values.
         """
-        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
-        if missing_features:
-            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
+        self._check_missing_features(features)
 
-        best_list: List = []
+        best_list: List[str] = []
         candidate_list: List[str] = features.copy()
         aproximate_performance: List[float] = []
         best_performance = 0.0
-        while len(candidate_list) > 0:
+        while candidate_list:
             best_feature_, best_performance_ = utils.best_feature(
                 self.shap_values, self.shap_mean, self.link_model, self.target_column, best_list, candidate_list
             )
@@ -153,20 +145,20 @@ class Aprofs:
 
             if self.link_model.perform == "maximize":  # maximize metric
                 if best_performance > best_performance_ * (1 + greediness):
-                    print(f"The feature {best_feature_} wont be added")
+                    print(f"The feature {best_feature_} won't be added")
                 else:
                     best_performance = best_performance_
                     best_list.append(best_feature_)
-                    print(f"the best feature to add is {best_feature_} with performance {best_performance_}")
+                    print(f"The best feature to add is {best_feature_} with performance {best_performance_}")
                     aproximate_performance.append(best_performance_)
 
             if self.link_model.perform == "minimize":  # minimize metric
                 if best_performance < best_performance_ * (1 - greediness):
-                    print(f"The feature {best_feature_} wont be added")
+                    print(f"The feature {best_feature_} won't be added")
                 else:
                     best_performance = best_performance_
                     best_list.append(best_feature_)
-                    print(f"the best feature to add is {best_feature_} with performance {best_performance_}")
+                    print(f"The best feature to add is {best_feature_} with performance {best_performance_}")
                     aproximate_performance.append(best_performance_)
 
         return best_list
@@ -183,11 +175,9 @@ class Aprofs:
             pd.DataFrame: A DataFrame containing the features and their corresponding p-values.
 
         Raises:
-            ValueError: If an any feature is missing in the SHAP values.
+            ValueError: If any feature is missing in the SHAP values.
         """
-        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
-        if missing_features:
-            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
+        self._check_missing_features(features)
 
         p_values = []
         performance_threshold = self.get_feature_performance(self.shap_values.columns)
@@ -223,18 +213,13 @@ class Aprofs:
             None
 
         Raises:
-            ValueError: If an any feature is missing in the SHAP values dataframe.
+            ValueError: If any feature is missing in the SHAP values dataframe.
         """
-        # generate data to plot marginal effect shapley values
         if other_features is None:
             other_features = []
-        features = []
-        features.append(main_feature)
-        features.extend(other_features)
+        features = [main_feature] + other_features
 
-        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
-        if missing_features:
-            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
+        self._check_missing_features(features)
 
         temp_data = utils.temp_plot_data(self, features)
         # call plotting function
@@ -249,7 +234,7 @@ class Aprofs:
 
     def compare_feature(  # pylint: disable=too-many-arguments
         self,
-        other,
+        other: 'Aprofs',
         feature: str,
         nbins: int = 20,
         type_bins: str = "qcut",
@@ -259,6 +244,7 @@ class Aprofs:
         Visualize the marginal effect of a feature on the target variable.
 
         Parameters:
+            other (Aprofs): Another Aprofs object to compare with.
             feature (str): The main feature for which to visualize the marginal effect.
             nbins (int): The number of bins to use for the visualization. Default is 20.
             type_bins (str): The type of binning to use. Default is "qcut".
@@ -268,14 +254,13 @@ class Aprofs:
             None
 
         Raises:
-            ValueError: If an any feature is missing in the SHAP values.
+            ValueError: If the feature is missing in the SHAP values.
         """
-
         if not isinstance(other, Aprofs):
             raise ValueError("Can only compare with another Aprofs object")
 
         if feature not in self.shap_values.columns:
-            raise ValueError(f"The following feature are missing in the SHAP values: {feature}")
+            raise ValueError(f"The feature '{feature}' is missing in the SHAP values")
 
         temp_data = utils.temp_plot_compare_data(self, other, feature)
         # call plotting function
@@ -309,22 +294,16 @@ class Aprofs:
             None
 
         Raises:
-            ValueError: If an any feature is missing in the SHAP values dataframe.
+            ValueError: If any feature is missing in the SHAP values dataframe.
         """
-        # generate data to plot marginal effect shapley values
         if neutralize_features is None:
             neutralize_features = []
-        features = []
         if not isinstance(neutralize_features, list):
             neutralize_features = [neutralize_features]
 
-        features.append(main_feature)
-        features.extend(neutralize_features)
-        features = list(set(features))  # remove duplicates
+        features = list(set([main_feature] + neutralize_features))  # remove duplicates
 
-        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
-        if missing_features:
-            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")
+        self._check_missing_features(features)
 
         temp_data = utils.temp_neutral_plot_data(self, neutralize_features)
         temp_data[main_feature] = self.current_data[main_feature]
@@ -336,3 +315,17 @@ class Aprofs:
             type_bins=type_bins,
             type_plot=type_plot,
         )
+
+    def _check_missing_features(self, features: List[str]) -> None:
+        """
+        Check if any feature is missing in the SHAP values.
+
+        Parameters:
+            features (List[str]): The list of features to check.
+
+        Raises:
+            ValueError: If any feature is missing in the SHAP values.
+        """
+        missing_features = [feature for feature in features if feature not in self.shap_values.columns]
+        if missing_features:
+            raise ValueError(f"The following features are missing in the SHAP values: {missing_features}")

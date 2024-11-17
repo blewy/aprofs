@@ -234,7 +234,7 @@ class Aprofs:
 
     def compare_feature(  # pylint: disable=too-many-arguments
         self,
-        other: 'Aprofs',
+        other: "Aprofs",
         feature: str,
         nbins: int = 20,
         type_bins: str = "qcut",
